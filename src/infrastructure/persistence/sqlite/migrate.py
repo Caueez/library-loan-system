@@ -27,7 +27,12 @@ class Migration:
 
     @staticmethod
     def get_current_version(db: SqliteImplementation) -> int:
-        return db.fetchone(GET_SCHEMA_VERSION)[0]
+        data = db.fetchone(GET_SCHEMA_VERSION)
+
+        if data:
+            return data[0]
+
+        return 0 
 
     def migrate(self) -> None:
 

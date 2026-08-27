@@ -1,6 +1,6 @@
 
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
 from application.ports.book_repo import BookRepository
 
@@ -15,13 +15,17 @@ class SQLiteBookRepository(BookRepository):
         self._db = db
 
     @staticmethod
-    def model_to_entity(model: BookModel) -> Book:
-        return Book.recovery(
-            id_book=model.book.id_book,
-            name=model.book.name,
-            author=model.book.author,
-            iSBN=model.book.iSBN
-            )
+    def row_to_model(row: Any) -> BookModel:
+        return BookModel.recovery(
+            entity=Book.recovery(
+                id_book=row["id_book"],
+                name=row["name"],
+                author=row["author"],
+                isbn=row["isbn"]
+            ),
+            created_at=row["created_at"],
+            updated_at=row["updated_at"]
+        )
 
     @staticmethod
     def entity_to_model(entity: Book) -> BookModel:
@@ -32,12 +36,14 @@ class SQLiteBookRepository(BookRepository):
             SELECT * FROM books WHERE id_book = ?
         """
 
-        data = self._db.fetchone(QUERY, (entity_id,))
+        row = self._db.fetchone(QUERY, (entity_id,))
 
-        if not data:
+        if not row:
             return None
 
-        return self.model_to_entity(BookModel(**data))
+        model = self.row_to_model(row)
+
+        return model.entity
 
 
     def get_by_name(self, name: str) -> list[Book]:
@@ -50,7 +56,12 @@ class SQLiteBookRepository(BookRepository):
         if not data:
             return []
 
-        return [self.model_to_entity(BookModel(**book)) for book in data]
+        models = [
+            self.row_to_model(row) for row in data
+        ]
+        
+
+        return [model.entity for model in models]
 
     def get_by_author(self, author: str) -> list[Book]:
         QUERY = """
@@ -62,23 +73,31 @@ class SQLiteBookRepository(BookRepository):
         if not data:
             return []
 
-        return [self.model_to_entity(BookModel(**book)) for book in data]
+        models = [
+            self.row_to_model(row) for row in data
+        ]
+
+        return [model.entity for model in models]
     
-    def get_by_iSBN(self, iSBN: str) -> list[Book]:
+    def get_by_isbn(self, isbn: str) -> list[Book]:
         QUERY = """
-            SELECT * FROM books WHERE iSBN = ?
+            SELECT * FROM books WHERE isbn = ?
         """
 
-        data = self._db.fetchall(QUERY, (iSBN,))
+        data = self._db.fetchall(QUERY, (isbn,))
 
         if not data:
             return []
 
-        return [self.model_to_entity(BookModel(**book)) for book in data]
+        models = [
+            self.row_to_model(row) for row in data
+        ]
+
+        return [model.entity for model in models]
 
     def create(self, entity: Book) -> Book:
         QUERY = """
-            INSERT INTO books (id_book, name, author, iSBN, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO books (id_book, name, author, isbn, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)
         """
 
         model = self.entity_to_model(entity)
@@ -91,7 +110,7 @@ class SQLiteBookRepository(BookRepository):
                 model_dict["id_book"],
                 model_dict["name"],
                 model_dict["author"],
-                model_dict["iSBN"],
+                model_dict["isbn"],
                 model_dict["created_at"],
                 model_dict["updated_at"]
             ))
@@ -100,7 +119,7 @@ class SQLiteBookRepository(BookRepository):
 
     def update(self, entity: Book) -> Book:
         QUERY = """
-            UPDATE books SET name = ?, author = ?, iSBN = ?, updated_at = ? WHERE id_book = ?
+            UPDATE books SET name = ?, author = ?, isbn = ?, updated_at = ? WHERE id_book = ?
         """
 
         model = self.entity_to_model(entity)
@@ -111,7 +130,7 @@ class SQLiteBookRepository(BookRepository):
             self._db.execute(QUERY, (
                 model_dict["name"],
                 model_dict["author"],
-                model_dict["iSBN"],
+                model_dict["isbn"],
                 model_dict["updated_at"],
                 model_dict["id_book"]
             ))
@@ -137,7 +156,11 @@ class SQLiteBookRepository(BookRepository):
         if not data:
             return []
 
-        return [self.model_to_entity(BookModel(**book)) for book in data]
+        models = [
+            self.row_to_model(row) for row in data
+        ]
+
+        return [model.entity for model in models]
 
     def get_by_updated_at(self, updated_at: datetime) -> list[Book]:
         QUERY = """
@@ -150,4 +173,8 @@ class SQLiteBookRepository(BookRepository):
         if not data:
             return []
 
-        return [self.model_to_entity(BookModel(**book)) for book in data]
+        models = [
+            self.row_to_model(row) for row in data
+        ]
+
+        return [model.entity for model in models]

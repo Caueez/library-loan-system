@@ -4,12 +4,12 @@ from uuid import uuid4
 
 
 class Book:
-    def __init__(self, id_book: str, name: str, author: str, iSBN: str)-> None:
+    def __init__(self, id_book: str, name: str, author: str, isbn: str)-> None:
         self._id = id_book
 
         self._name = name
         self._author = author
-        self._iSBN = iSBN
+        self._isbn = isbn
 
     @property
     def id_book(self) -> str:
@@ -24,8 +24,8 @@ class Book:
         return self._author
 
     @property
-    def iSBN(self) -> str:
-        return self._iSBN
+    def isbn(self) -> str:
+        return self._isbn
 
     @name.setter
     def name(self, new_name: str) -> None:
@@ -35,28 +35,28 @@ class Book:
     def author(self, new_author: str) -> None:
         self._author = new_author
 
-    @iSBN.setter
-    def iSBN(self, new_iSBN: str) -> None:
-        self._iSBN = new_iSBN
+    @isbn.setter
+    def isbn(self, new_isbn: str) -> None:
+        self._isbn = new_isbn
 
 
     @staticmethod
-    def create(name: str, author: str, iSBN: str) -> Book:
+    def create(name: str, author: str, isbn: str) -> Book:
         id_book = str(uuid4())
         return Book(
             id_book=id_book,
             name=name, 
             author=author, 
-            iSBN=iSBN
+            isbn=isbn
             )
 
     @staticmethod
-    def recovery(id_book: str, name: str, author: str, iSBN: str) -> Book:
+    def recovery(id_book: str, name: str, author: str, isbn: str) -> Book:
         return Book(
             id_book=id_book,
             name=name, 
             author=author, 
-            iSBN=iSBN
+            isbn=isbn
             )
 
     def to_dict(self) -> dict[str, str]:
@@ -64,5 +64,5 @@ class Book:
             'id': self.id_book,
             'name': self.name,
             'author': self.author,
-            'iSBN': self.iSBN
+            'isbn': self.isbn
         }

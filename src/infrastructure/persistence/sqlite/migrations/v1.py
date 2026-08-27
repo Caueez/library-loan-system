@@ -7,10 +7,10 @@ BOOK_TABLE = """
 
         name TEXT NOT NULL,
         author TEXT NOT NULL,
-        iSBN TEXT NOT NULL,
+        isbn TEXT NOT NULL,
 
         created_at INTEGER NOT NULL,
-        updated_at INTEGER
+        updated_at INTEGER NOT NULL
     );
 """
 
@@ -25,7 +25,7 @@ LOAN_TABLE = """
         checked_out INTEGER,
 
         created_at INTEGER NOT NULL,
-        updated_at INTEGER,
+        updated_at INTEGER NOT NULL,
         
         FOREIGN KEY (id_book) REFERENCES books(id_book),
         FOREIGN KEY (id_student) REFERENCES students(id_student)
@@ -41,7 +41,7 @@ STUDENT_TABLE = """
         matriculation TEXT NOT NULL,
         
         created_at INTEGER NOT NULL,
-        updated_at INTEGER
+        updated_at INTEGER NOT NULL
     );
 """
 

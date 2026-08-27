@@ -1,6 +1,6 @@
 
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
 from application.ports.student_repo import StudentRepository
 
@@ -15,12 +15,12 @@ class SQLiteStudentRepository(StudentRepository):
         self._db = db
 
     @staticmethod
-    def model_to_entity(model: StudentModel) -> Student:
+    def row_to_model(row: Any) -> Student:
         return Student.recovery(
-            id_student=model.entity.id_student,
-            name=model.entity.name,
-            cpf=model.entity.cpf,
-            matriculation=model.entity.matriculation
+            id_student=row["id_student"],
+            name=row["name"],
+            cpf=row["cpf"],
+            matriculation=row["matriculation"]
         )
 
     @staticmethod
@@ -88,7 +88,7 @@ class SQLiteStudentRepository(StudentRepository):
         if not data:
             return None
 
-        return self.model_to_entity(StudentModel(**data))
+        return self.row_to_model(data)
 
     def get_by_created_at(self, created_at: datetime) -> list[Student]:
         QUERY = """
@@ -101,7 +101,7 @@ class SQLiteStudentRepository(StudentRepository):
         if not data:
             return []
 
-        return [self.model_to_entity(StudentModel(**student)) for student in data]
+        return [self.row_to_model(row) for row in data]
 
     def get_by_updated_at(self, updated_at: datetime) -> list[Student]:
         QUERY = """
@@ -114,7 +114,7 @@ class SQLiteStudentRepository(StudentRepository):
         if not data:
             return []
 
-        return [self.model_to_entity(StudentModel(**student)) for student in data]
+        return [self.row_to_model(row) for row in data]
 
     def get_by_name(self, name: str) -> list[Student]:
         QUERY = """
@@ -126,7 +126,7 @@ class SQLiteStudentRepository(StudentRepository):
         if not data:
             return []
 
-        return [self.model_to_entity(StudentModel(**student)) for student in data]
+        return [self.row_to_model(row) for row in data]
 
     def get_by_cpf(self, cpf: str) -> Optional[Student]:
         QUERY = """
@@ -138,7 +138,7 @@ class SQLiteStudentRepository(StudentRepository):
         if not data:
             return None
 
-        return self.model_to_entity(StudentModel(**data))
+        return self.row_to_model(data)
 
     def get_by_matriculation(self, matriculation: str) -> Optional[Student]:
         QUERY = """
@@ -150,4 +150,4 @@ class SQLiteStudentRepository(StudentRepository):
         if not data:
             return None
 
-        return self.model_to_entity(StudentModel(**data))
+        return self.row_to_model(data)

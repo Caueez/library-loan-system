@@ -24,11 +24,11 @@ class StudentModel:
         )
 
     @staticmethod
-    def recovery(entity_model: StudentModel) -> StudentModel:
+    def recovery(entity: Student, created_at: int, updated_at: int) -> StudentModel:
         return StudentModel(
-            entity=entity_model.entity,
-            created_at=entity_model.created_at,
-            updated_at=entity_model.updated_at
+            entity=entity,
+            created_at=datetime.fromtimestamp(created_at),
+            updated_at=datetime.fromtimestamp(updated_at)
         )
 
     def to_dict(self) -> dict[str, str | int]:

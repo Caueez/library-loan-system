@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
 from application.ports.loan_repo import BookLoanRepository
 
@@ -14,13 +14,13 @@ class SQLiteBookRepository(BookLoanRepository):
         self._db = db
 
     @staticmethod
-    def model_to_entity(model: LoanModel) -> BookLoan:
+    def row_to_model(row: Any) -> BookLoan:
         return BookLoan.recovery(
-            id_loan=model.loan.id_loan,
-            id_book=model.loan.id_book,
-            id_student=model.loan.id_student,
-            checked_in=model.loan.checked_in,
-            checked_out=model.loan.checked_out,
+            id_loan=row["id_loan"],
+            id_book=row["id_book"],
+            id_student=row["id_student"],
+            checked_in=row["checked_in"],
+            checked_out=row["checked_out"]
         )
 
     @staticmethod
@@ -37,7 +37,7 @@ class SQLiteBookRepository(BookLoanRepository):
         if not data:
             return None
 
-        return self.model_to_entity(LoanModel(**data))
+        return self.row_to_model(data)
 
     def get_by_id_book(self, id_book: str) -> list[BookLoan]:
         QUERY = """
@@ -48,7 +48,7 @@ class SQLiteBookRepository(BookLoanRepository):
         if not data:
             return []
 
-        return [self.model_to_entity(LoanModel(**loan)) for loan in data]
+        return [self.row_to_model(row) for row in data]
 
     def get_by_id_student(self, id_student: str) -> list[BookLoan]:
         QUERY = """
@@ -59,7 +59,7 @@ class SQLiteBookRepository(BookLoanRepository):
         if not data:
             return []
 
-        return [self.model_to_entity(LoanModel(**loan)) for loan in data]
+        return [self.row_to_model(row) for row in data]
 
     def get_by_checked_in(self, checked_in: datetime) -> list[BookLoan]:
         QUERY = """
@@ -71,7 +71,7 @@ class SQLiteBookRepository(BookLoanRepository):
         if not data:
             return []
 
-        return [self.model_to_entity(LoanModel(**loan)) for loan in data]
+        return [self.row_to_model(row) for row in data]
 
     def get_checked_out_range(self, start_date: datetime, end_date: datetime) -> list[BookLoan]:
         QUERY = """
@@ -86,7 +86,7 @@ class SQLiteBookRepository(BookLoanRepository):
         if not data:
             return []
 
-        return [self.model_to_entity(LoanModel(**loan)) for loan in data]
+        return [self.row_to_model(row) for row in data]
 
     def create(self, entity: BookLoan) -> BookLoan:
         QUERY = """
@@ -154,7 +154,7 @@ class SQLiteBookRepository(BookLoanRepository):
         if not data:
             return []
 
-        return [self.model_to_entity(LoanModel(**loan)) for loan in data]
+        return [self.row_to_model(row) for row in data]
 
     def get_by_updated_at(self, updated_at: datetime) -> list[BookLoan]:
         QUERY = """
@@ -166,7 +166,7 @@ class SQLiteBookRepository(BookLoanRepository):
         if not data:
             return []
 
-        return [self.model_to_entity(LoanModel(**loan)) for loan in data]
+        return [self.row_to_model(row) for row in data]
 
     def get_by_checked_out(self, checked_out: datetime) -> list[BookLoan]:
         QUERY = """
@@ -178,4 +178,4 @@ class SQLiteBookRepository(BookLoanRepository):
         if not data:
             return []
 
-        return [self.model_to_entity(LoanModel(**loan)) for loan in data]
+        return [self.row_to_model(row) for row in data]
