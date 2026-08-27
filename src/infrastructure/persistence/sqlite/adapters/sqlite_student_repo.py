@@ -15,12 +15,16 @@ class SQLiteStudentRepository(StudentRepository):
         self._db = db
 
     @staticmethod
-    def row_to_model(row: Any) -> Student:
-        return Student.recovery(
-            id_student=row["id_student"],
-            name=row["name"],
-            cpf=row["cpf"],
-            matriculation=row["matriculation"]
+    def row_to_model(row: Any) -> StudentModel:
+        return StudentModel.recovery(
+            entity=Student.recovery(
+                id_student=row["id_student"],
+                name=row["name"],
+                cpf=row["cpf"],
+                matriculation=row["matriculation"]
+            ),
+            created_at=row["created_at"],
+            updated_at=row["updated_at"]
         )
 
     @staticmethod
@@ -88,7 +92,9 @@ class SQLiteStudentRepository(StudentRepository):
         if not data:
             return None
 
-        return self.row_to_model(data)
+        model = self.row_to_model(data)
+
+        return model.entity
 
     def get_by_created_at(self, created_at: datetime) -> list[Student]:
         QUERY = """
@@ -101,7 +107,9 @@ class SQLiteStudentRepository(StudentRepository):
         if not data:
             return []
 
-        return [self.row_to_model(row) for row in data]
+        models = [self.row_to_model(row) for row in data]
+
+        return [model.entity for model in models]
 
     def get_by_updated_at(self, updated_at: datetime) -> list[Student]:
         QUERY = """
@@ -114,7 +122,9 @@ class SQLiteStudentRepository(StudentRepository):
         if not data:
             return []
 
-        return [self.row_to_model(row) for row in data]
+        models = [self.row_to_model(row) for row in data]
+        
+        return [model.entity for model in models]
 
     def get_by_name(self, name: str) -> list[Student]:
         QUERY = """
@@ -126,7 +136,9 @@ class SQLiteStudentRepository(StudentRepository):
         if not data:
             return []
 
-        return [self.row_to_model(row) for row in data]
+        models = [self.row_to_model(row) for row in data]
+                       
+        return [model.entity for model in models]
 
     def get_by_cpf(self, cpf: str) -> Optional[Student]:
         QUERY = """
@@ -138,7 +150,9 @@ class SQLiteStudentRepository(StudentRepository):
         if not data:
             return None
 
-        return self.row_to_model(data)
+        model = self.row_to_model(data)
+
+        return model.entity
 
     def get_by_matriculation(self, matriculation: str) -> Optional[Student]:
         QUERY = """
@@ -150,4 +164,6 @@ class SQLiteStudentRepository(StudentRepository):
         if not data:
             return None
 
-        return self.row_to_model(data)
+        model = self.row_to_model(data)
+        
+        return model.entity

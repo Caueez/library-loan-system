@@ -9,18 +9,22 @@ from infrastructure.persistence.sqlite.implementation import SqliteImplementatio
 from infrastructure.persistence.sqlite.models.loan import LoanModel
 
 
-class SQLiteBookRepository(BookLoanRepository):
+class SQLiteBookLoanRepository(BookLoanRepository):
     def __init__(self, db: SqliteImplementation):
         self._db = db
 
     @staticmethod
-    def row_to_model(row: Any) -> BookLoan:
-        return BookLoan.recovery(
-            id_loan=row["id_loan"],
-            id_book=row["id_book"],
-            id_student=row["id_student"],
-            checked_in=row["checked_in"],
-            checked_out=row["checked_out"]
+    def row_to_model(row: Any) -> LoanModel:
+        return LoanModel.recovery(
+            entity=BookLoan.recovery(
+                id_loan=row["id_loan"],
+                id_book=row["id_book"],
+                id_student=row["id_student"],
+                checked_in=row["checked_in"],
+                checked_out=row["checked_out"]
+            ),
+            created_at=row["created_at"],
+            updated_at=row["updated_at"]
         )
 
     @staticmethod
@@ -37,7 +41,9 @@ class SQLiteBookRepository(BookLoanRepository):
         if not data:
             return None
 
-        return self.row_to_model(data)
+        model = self.row_to_model(data)
+
+        return model.entity
 
     def get_by_id_book(self, id_book: str) -> list[BookLoan]:
         QUERY = """
@@ -48,7 +54,9 @@ class SQLiteBookRepository(BookLoanRepository):
         if not data:
             return []
 
-        return [self.row_to_model(row) for row in data]
+        models = [self.row_to_model(row) for row in data]
+                
+        return [model.entity for model in models]
 
     def get_by_id_student(self, id_student: str) -> list[BookLoan]:
         QUERY = """
@@ -59,7 +67,9 @@ class SQLiteBookRepository(BookLoanRepository):
         if not data:
             return []
 
-        return [self.row_to_model(row) for row in data]
+        models = [self.row_to_model(row) for row in data]
+                        
+        return [model.entity for model in models]
 
     def get_by_checked_in(self, checked_in: datetime) -> list[BookLoan]:
         QUERY = """
@@ -71,7 +81,9 @@ class SQLiteBookRepository(BookLoanRepository):
         if not data:
             return []
 
-        return [self.row_to_model(row) for row in data]
+        models = [self.row_to_model(row) for row in data]
+                        
+        return [model.entity for model in models]
 
     def get_checked_out_range(self, start_date: datetime, end_date: datetime) -> list[BookLoan]:
         QUERY = """
@@ -86,7 +98,9 @@ class SQLiteBookRepository(BookLoanRepository):
         if not data:
             return []
 
-        return [self.row_to_model(row) for row in data]
+        models = [self.row_to_model(row) for row in data]
+                        
+        return [model.entity for model in models]
 
     def create(self, entity: BookLoan) -> BookLoan:
         QUERY = """
@@ -154,7 +168,9 @@ class SQLiteBookRepository(BookLoanRepository):
         if not data:
             return []
 
-        return [self.row_to_model(row) for row in data]
+        models = [self.row_to_model(row) for row in data]
+                        
+        return [model.entity for model in models]
 
     def get_by_updated_at(self, updated_at: datetime) -> list[BookLoan]:
         QUERY = """
@@ -166,7 +182,9 @@ class SQLiteBookRepository(BookLoanRepository):
         if not data:
             return []
 
-        return [self.row_to_model(row) for row in data]
+        models = [self.row_to_model(row) for row in data]
+                        
+        return [model.entity for model in models]
 
     def get_by_checked_out(self, checked_out: datetime) -> list[BookLoan]:
         QUERY = """
@@ -178,4 +196,6 @@ class SQLiteBookRepository(BookLoanRepository):
         if not data:
             return []
 
-        return [self.row_to_model(row) for row in data]
+        models = [self.row_to_model(row) for row in data]
+                        
+        return [model.entity for model in models]

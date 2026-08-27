@@ -56,10 +56,7 @@ class SQLiteBookRepository(BookRepository):
         if not data:
             return []
 
-        models = [
-            self.row_to_model(row) for row in data
-        ]
-        
+        models = [self.row_to_model(row) for row in data]
 
         return [model.entity for model in models]
 
@@ -73,9 +70,7 @@ class SQLiteBookRepository(BookRepository):
         if not data:
             return []
 
-        models = [
-            self.row_to_model(row) for row in data
-        ]
+        models = [self.row_to_model(row) for row in data]
 
         return [model.entity for model in models]
     
@@ -89,9 +84,7 @@ class SQLiteBookRepository(BookRepository):
         if not data:
             return []
 
-        models = [
-            self.row_to_model(row) for row in data
-        ]
+        models = [self.row_to_model(row) for row in data]
 
         return [model.entity for model in models]
 
@@ -156,9 +149,7 @@ class SQLiteBookRepository(BookRepository):
         if not data:
             return []
 
-        models = [
-            self.row_to_model(row) for row in data
-        ]
+        models = [self.row_to_model(row) for row in data]
 
         return [model.entity for model in models]
 
@@ -173,8 +164,6 @@ class SQLiteBookRepository(BookRepository):
         if not data:
             return []
 
-        models = [
-            self.row_to_model(row) for row in data
-        ]
+        models = [self.row_to_model(row) for row in data]
 
         return [model.entity for model in models]
