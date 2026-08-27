@@ -52,7 +52,7 @@ class SQLiteBookRepository(BookLoanRepository):
 
     def get_by_id_student(self, id_student: str) -> list[BookLoan]:
         QUERY = """
-            SELECT * FROM loans WHERE id_user = ?
+            SELECT * FROM loans WHERE id_student = ?
         """
         data = self._db.fetchall(QUERY, (id_student,))
 
@@ -92,11 +92,11 @@ class SQLiteBookRepository(BookLoanRepository):
 
     def set_book_return(self, entity_id: str) -> None:
         QUERY = """
-            UPDATE loans SET checked_out = ? WHERE id = ?
+            UPDATE loans SET checked_out = ? WHERE id_loan = ?
         """
-        self._db.execute(QUERY, (int(datetime.now().timestamp()), entity_id))
 
-        self._db.commit()
+        with self._db.transaction():
+            self._db.execute(QUERY, (int(datetime.now().timestamp()), entity_id))
 
     def create(self, entity: BookLoan) -> BookLoan:
         QUERY = """
@@ -106,20 +106,19 @@ class SQLiteBookRepository(BookLoanRepository):
         model = self.entity_to_model(entity)
         model_dict = model.to_dict()
 
-        self._db.execute(
-            QUERY,
-            (
-                model_dict["id"],
-                model_dict["id_book"],
-                model_dict["id_user"],
-                model_dict["checked_in"],
-                model_dict["checked_out"],
-                model_dict["created_at"],
-                model_dict["updated_at"],
-            ),
-        )
-
-        self._db.commit()
+        with self._db.transaction():
+            self._db.execute(
+                QUERY,
+                (
+                    model_dict["id"],
+                    model_dict["id_book"],
+                    model_dict["id_user"],
+                    model_dict["checked_in"],
+                    model_dict["checked_out"],
+                    model_dict["created_at"],
+                    model_dict["updated_at"],
+                ),
+            )
 
         return entity
 
@@ -132,19 +131,18 @@ class SQLiteBookRepository(BookLoanRepository):
         model = self.entity_to_model(entity)
         model_dict = model.to_dict()
 
-        self._db.execute(
-            QUERY,
-            (
-                model_dict["id_book"],
-                model_dict["id_user"],
-                model_dict["checked_in"],
-                model_dict["checked_out"],
-                model_dict["updated_at"],
-                model_dict["id"],
-            ),
-        )
-
-        self._db.commit()
+        with self._db.transaction():
+            self._db.execute(
+                QUERY,
+                (
+                    model_dict["id_book"],
+                    model_dict["id_user"],
+                    model_dict["checked_in"],
+                    model_dict["checked_out"],
+                    model_dict["updated_at"],
+                    model_dict["id"],
+                ),
+            )
 
         return entity
 
@@ -152,9 +150,9 @@ class SQLiteBookRepository(BookLoanRepository):
         QUERY = """
             DELETE FROM loans WHERE id = ?
         """
-        self._db.execute(QUERY, (entity_id,))
 
-        self._db.commit()
+        with self._db.transaction():
+            self._db.execute(QUERY, (entity_id,))
 
     def get_by_created_at(self, created_at: datetime) -> list[BookLoan]:
         QUERY = """

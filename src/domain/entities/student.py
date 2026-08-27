@@ -6,10 +6,14 @@ from domain.entities.user import User
 
 
 class Student(User):
-    def __init__(self, id_user: str, name: str, cpf: str, matriculation: str)-> None:
-        super().__init__(id_user=id_user, name=name, cpf=cpf)
+    def __init__(self, id_student: str, name: str, cpf: str, matriculation: str)-> None:
+        super().__init__(id_user=id_student, name=name, cpf=cpf)
 
         self.matriculation = matriculation
+
+    @property
+    def id_student(self):
+        return self._id_user
 
     @property
     def matriculation(self):
@@ -21,18 +25,18 @@ class Student(User):
 
     @staticmethod
     def create(name: str, cpf: str, matriculation: str) -> Student:
-        id_user = str(uuid4())
+        id_student = str(uuid4())
         return Student(
-            id_user=id_user,
+            id_student=id_student,
             name=name, 
             cpf=cpf, 
             matriculation=matriculation
             )
 
     @staticmethod
-    def recovery(id_user: str, name: str, cpf: str, matriculation: str) -> Student:
+    def recovery(id_student: str, name: str, cpf: str, matriculation: str) -> Student:
         return Student(
-            id_user=id_user,
+            id_student=id_student,
             name=name, 
             cpf=cpf, 
             matriculation=matriculation
@@ -40,7 +44,7 @@ class Student(User):
 
     def to_dict(self) -> dict[str, str]:
         return {
-            'id_user': self.id_user,
+            'id_student': self.id_student,
             'name': self.name,
             'cpf': self.cpf,
             'matriculation': self.matriculation

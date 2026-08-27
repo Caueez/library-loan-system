@@ -1,13 +1,19 @@
 
 from contextlib import contextmanager
 from sqlite3 import Connection, connect, Row
-from typing import Any, Optional
+from typing import Optional
 
 
 class SqliteImplementation:
     def __init__(self, uri: str) -> None:        
         self._uri = uri
         self._connection : Connection = connect(uri)
+        self._connection.row_factory = Row
+
+        self._config()
+    
+    def _config(self) -> None:
+        self._connection.execute("PRAGMA foreign_keys = ON")
 
     def connect(self) -> None:
         if not self._uri:
@@ -22,7 +28,7 @@ class SqliteImplementation:
             yield
             self.commit()
         except Exception as e:
-            self.roolback()
+            self.rollback()
             raise e
 
     def execute(self, query: str, params: tuple[Optional[str | int], ...] = ()) -> None:
@@ -48,7 +54,7 @@ class SqliteImplementation:
         finally:
             cursor.close()
 
-    def fetchall(self, query: str, params: tuple[Optional[str | int], ...] = ()) -> list[Any]:
+    def fetchall(self, query: str, params: tuple[Optional[str | int], ...] = ()) -> list[Row]:
         if not self._connection:
             raise Exception("Conexão não estabelecida")
 
@@ -66,7 +72,7 @@ class SqliteImplementation:
         
         self._connection.commit()
 
-    def roolback(self) -> None:
+    def rollback(self) -> None:
         if not self._connection:
             raise Exception("Conexão não estabelecida")
         

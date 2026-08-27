@@ -3,10 +3,12 @@ from infrastructure.persistence.sqlite.implementation import SqliteImplementatio
 
 BOOK_TABLE = """
     CREATE TABLE IF NOT EXISTS books (
-        id TEXT PRIMARY KEY,
+        id_book TEXT PRIMARY KEY,
+
         name TEXT NOT NULL,
         author TEXT NOT NULL,
         ISBN TEXT NOT NULL,
+
         created_at INTEGER NOT NULL,
         updated_at INTEGER
     );
@@ -14,22 +16,30 @@ BOOK_TABLE = """
 
 LOAN_TABLE = """
     CREATE TABLE IF NOT EXISTS loans (
-        id TEXT PRIMARY KEY,
-        FOREIGN KEY (id_book) REFERENCES books(id),
-        FOREIGN KEY (id_students) REFERENCES students(id),
+        id_loan TEXT PRIMARY KEY,
+
+        id_book TEXT NOT NULL,
+        id_student TEXT NOT NULL,
+
         checked_in INTEGER NOT NULL,
         checked_out INTEGER,
+
         created_at INTEGER NOT NULL,
         updated_at INTEGER
+        
+        FOREIGN KEY (id_book) REFERENCES books(id_book),
+        FOREIGN KEY (id_student) REFERENCES students(id_student),
     );
 """
 
 STUDENT_TABLE = """
     CREATE TABLE IF NOT EXISTS students (
-        id TEXT PRIMARY KEY,
+        id_student TEXT PRIMARY KEY,
+
         name TEXT NOT NULL,
         cpf TEXT NOT NULL,
         matriculation TEXT NOT NULL,
+        
         created_at INTEGER NOT NULL,
         updated_at INTEGER
     );

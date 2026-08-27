@@ -45,7 +45,7 @@ class SQLiteBookRepository(BookRepository):
             SELECT * FROM books WHERE name = ?
         """
 
-        data = self._db.fetchone(QUERY, (name,))
+        data = self._db.fetchall(QUERY, (name,))
 
         if not data:
             return []
@@ -85,17 +85,16 @@ class SQLiteBookRepository(BookRepository):
 
         model_dict = model.to_dict()
 
-        self._db.execute(
-            QUERY, (
-            model_dict["id"],
-            model_dict["name"],
-            model_dict["author"],
-            model_dict["ISBN"],
-            model_dict["created_at"],
-            model_dict["updated_at"]
-        ))
-
-        self._db.commit()
+        with self._db.transaction():
+            self._db.execute(
+                QUERY, (
+                model_dict["id"],
+                model_dict["name"],
+                model_dict["author"],
+                model_dict["ISBN"],
+                model_dict["created_at"],
+                model_dict["updated_at"]
+            ))
 
         return entity
 
@@ -108,15 +107,14 @@ class SQLiteBookRepository(BookRepository):
 
         model_dict = model.to_dict()
 
-        self._db.execute(QUERY, (
-            model_dict["name"],
-            model_dict["author"],
-            model_dict["ISBN"],
-            model_dict["updated_at"],
-            model_dict["id"]
-        ))
-
-        self._db.commit()
+        with self._db.transaction():
+            self._db.execute(QUERY, (
+                model_dict["name"],
+                model_dict["author"],
+                model_dict["ISBN"],
+                model_dict["updated_at"],
+                model_dict["id"]
+            ))
 
         return entity
 
@@ -124,10 +122,9 @@ class SQLiteBookRepository(BookRepository):
         QUERY = """
             DELETE FROM books WHERE id = ?
         """
+        with self._db.transaction():
+            self._db.execute(QUERY, (entity_id,))
 
-        self._db.execute(QUERY, (entity_id,))
-
-        self._db.commit()
 
     def get_by_created_at(self, created_at: datetime) -> list[Book]:
         QUERY = """

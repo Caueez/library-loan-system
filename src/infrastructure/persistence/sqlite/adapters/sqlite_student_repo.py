@@ -17,7 +17,7 @@ class SQLiteStudentRepository(StudentRepository):
     @staticmethod
     def model_to_entity(model: StudentModel) -> Student:
         return Student.recovery(
-            id_user=model.entity.id_user,
+            id_student=model.entity.id_student,
             name=model.entity.name,
             cpf=model.entity.cpf,
             matriculation=model.entity.matriculation
@@ -29,7 +29,7 @@ class SQLiteStudentRepository(StudentRepository):
 
     def create(self, entity: Student) -> Student:
         QUERY = """
-            INSERT INTO students (id, name, cpf, matriculation, created_at, updated_at)
+            INSERT INTO students (id_student, name, cpf, matriculation, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?, ?)
         """
 
@@ -37,16 +37,15 @@ class SQLiteStudentRepository(StudentRepository):
 
         model_dict = model.to_dict()
 
-        self._db.execute(QUERY, (
-            model_dict["id_user"],
-            model_dict["name"],
-            model_dict["cpf"],
-            model_dict["matriculation"],
-            model_dict["created_at"],
-            model_dict["updated_at"]
-        ))
-
-        self._db.commit()
+        with self._db.transaction():
+            self._db.execute(QUERY, (
+                model_dict["id_student"],
+                model_dict["name"],
+                model_dict["cpf"],
+                model_dict["matriculation"],
+                model_dict["created_at"],
+                model_dict["updated_at"]
+            ))
 
         return entity
 
@@ -54,36 +53,34 @@ class SQLiteStudentRepository(StudentRepository):
         QUERY = """
             UPDATE students
             SET name = ?, cpf = ?, matriculation = ?, updated_at = ?
-            WHERE id = ?
+            WHERE id_student = ?
         """
 
         model = self.entity_to_model(entity)
         model_dict = model.to_dict()
 
-        self._db.execute(QUERY, (
-            model_dict["name"],
-            model_dict["cpf"],
-            model_dict["matriculation"],
-            model_dict["updated_at"],
-            model_dict["id_user"],
-        ))
-
-        self._db.commit()
+        with self._db.transaction():
+            self._db.execute(QUERY, (
+                model_dict["name"],
+                model_dict["cpf"],
+                model_dict["matriculation"],
+                model_dict["updated_at"],
+                model_dict["id_student"],
+            ))
 
         return entity
 
     def delete(self, entity_id: str) -> None:
         QUERY = """
-            DELETE FROM students WHERE id = ?
+            DELETE FROM students WHERE id_student = ?
         """
 
-        self._db.execute(QUERY, (entity_id,))
-
-        self._db.commit()
+        with self._db.transaction():
+            self._db.execute(QUERY, (entity_id,))
 
     def get_by_id(self, entity_id: str) -> Optional[Student]:
         QUERY = """
-            SELECT * FROM students WHERE id = ?
+            SELECT * FROM students WHERE id_student = ?
         """
 
         data = self._db.fetchone(QUERY, (entity_id,))
