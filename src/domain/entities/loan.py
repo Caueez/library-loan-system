@@ -53,7 +53,11 @@ class BookLoan:
             id_book=id_book, 
             id_student=id_student, 
             checked_in=datetime.fromtimestamp(checked_in),
-            checked_out=datetime.fromtimestamp(checked_out) if checked_out else None
+            checked_out=(
+                datetime.fromtimestamp(checked_out) 
+                if checked_out is not None 
+                else None
+                )
             )
 
     def book_returned(self, checked_out: datetime) -> None:
