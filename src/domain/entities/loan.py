@@ -47,13 +47,13 @@ class BookLoan:
             )
 
     @staticmethod
-    def recovery(id_loan: str, id_book: str, id_student: str, checked_in: datetime, checked_out: Optional[datetime]) -> BookLoan:
+    def recovery(id_loan: str, id_book: str, id_student: str, checked_in: int, checked_out: Optional[int]) -> BookLoan:
         return BookLoan(
             id_loan=id_loan,
             id_book=id_book, 
             id_student=id_student, 
-            checked_in=checked_in,
-            checked_out=checked_out
+            checked_in=datetime.fromtimestamp(checked_in),
+            checked_out=datetime.fromtimestamp(checked_out) if checked_out else None
             )
 
     def book_returned(self, checked_out: datetime) -> None:
