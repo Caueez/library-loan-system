@@ -2,36 +2,38 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from domain.values.date import current_date_utc
 from src.domain.entities.student import Student
 
 
 class StudentModel:
-    def __init__(self, student: Student, created_at: datetime, updated_at: datetime) -> None:
+    def __init__(self, entity: Student, created_at: datetime, updated_at: datetime) -> None:
 
-        self.student = student
+        self.entity = entity
 
         self.created_at = created_at
         self.updated_at = updated_at
 
     @staticmethod
-    def create(student: Student) -> StudentModel:
-        current_time = datetime.now()
+    def create(entity: Student) -> StudentModel:
+        current_time = current_date_utc()
         return StudentModel(
-            student=student,
+            entity=entity,
             created_at=current_time,
             updated_at=current_time
         )
 
     @staticmethod
-    def recovery(student_model: StudentModel) -> StudentModel:
+    def recovery(entity_model: StudentModel) -> StudentModel:
         return StudentModel(
-            student=student_model.student,
-            created_at=student_model.created_at,
-            updated_at=student_model.updated_at
+            entity=entity_model.entity,
+            created_at=entity_model.created_at,
+            updated_at=entity_model.updated_at
         )
 
-    def to_dict(self) -> dict[str, str]:
-        student_dict = self.student.to_dict()
-        student_dict['created_at'] = datetime.strftime(self.created_at, '%d-%m-%Y')
-        student_dict['updated_at'] = datetime.strftime(self.updated_at, '%d-%m-%Y')
-        return student_dict
+    def to_dict(self) -> dict[str, str | int]:
+        entity_dict = self.entity.to_dict()
+        model_dict : dict[str, str | int] = {**entity_dict}
+        model_dict['created_at'] = int(self.created_at.timestamp())
+        model_dict['updated_at'] = int(self.updated_at.timestamp())
+        return model_dict

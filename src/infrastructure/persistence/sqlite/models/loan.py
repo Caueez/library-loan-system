@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from domain.values.date import current_date_utc
 from src.domain.entities.loan import BookLoan
 
 
@@ -15,7 +16,7 @@ class LoanModel:
 
     @staticmethod
     def create(loan: BookLoan) -> LoanModel:
-        current_time = datetime.now()
+        current_time = current_date_utc()
         return LoanModel(
             loan=loan,
             created_at=current_time,
@@ -30,8 +31,9 @@ class LoanModel:
             updated_at=loan_model.updated_at
         )
 
-    def to_dict(self) -> dict[str, str | None]:
+    def to_dict(self) -> dict[str, str | int]:
         loan_dict = self.loan.to_dict()
-        loan_dict['created_at'] = datetime.strftime(self.created_at, '%d-%m-%Y')
-        loan_dict['updated_at'] = datetime.strftime(self.updated_at, '%d-%m-%Y')
-        return loan_dict
+        model_dict : dict[str, str | int] = {**loan_dict}
+        model_dict['created_at'] = int(self.created_at.timestamp())
+        model_dict['updated_at'] = int(self.updated_at.timestamp())
+        return model_dict

@@ -5,10 +5,9 @@ from typing import Optional
 from application.ports.book_repo import BookRepository
 
 from domain.entities.book import Book
+
 from infrastructure.persistence.sqlite.models.book import BookModel
-
 from infrastructure.persistence.sqlite.implementation import SqliteImplementation
-
 
 
 class SQLiteBookRepository(BookRepository):
@@ -18,21 +17,22 @@ class SQLiteBookRepository(BookRepository):
     @staticmethod
     def model_to_entity(model: BookModel) -> Book:
         return Book.recovery(
-            id=model.book.id,
+            id_book=model.book.id_book,
             name=model.book.name,
             author=model.book.author,
-            ISBN=model.book.ISBN
+            iSBN=model.book.iSBN
             )
 
     @staticmethod
     def entity_to_model(entity: Book) -> BookModel:
         return BookModel.create(entity)
 
-    def get_by_id(self, id: str) -> Optional[Book]:
-        cursor = self._db.cursor()
-        data = cursor.execute(f"""
-            SELECT * FROM books WHERE id = '{id}'
-        """).fetchone()
+    def get_by_id(self, entity_id: str) -> Optional[Book]:
+        QUERY = """
+            SELECT * FROM books WHERE id = ?
+        """
+
+        data = self._db.fetchone(QUERY, (entity_id,))
 
         if not data:
             return None
@@ -41,10 +41,11 @@ class SQLiteBookRepository(BookRepository):
 
 
     def get_by_name(self, name: str) -> list[Book]:
-        cursor = self._db.cursor()
-        data = cursor.execute(f"""
-            SELECT * FROM books WHERE name = '{name}'
-        """)
+        QUERY = """
+            SELECT * FROM books WHERE name = ?
+        """
+
+        data = self._db.fetchone(QUERY, (name,))
 
         if not data:
             return []
@@ -52,10 +53,11 @@ class SQLiteBookRepository(BookRepository):
         return [self.model_to_entity(BookModel(**book)) for book in data]
 
     def get_by_author(self, author: str) -> list[Book]:
-        cursor = self._db.cursor()
-        data = cursor.execute(f"""
-            SELECT * FROM books WHERE author = '{author}'
-        """)
+        QUERY = """
+            SELECT * FROM books WHERE author = ?
+        """
+
+        data = self._db.fetchall(QUERY, (author,))
 
         if not data:
             return []
@@ -63,10 +65,11 @@ class SQLiteBookRepository(BookRepository):
         return [self.model_to_entity(BookModel(**book)) for book in data]
     
     def get_by_ISBN(self, ISBN: str) -> list[Book]:
-        cursor = self._db.cursor()
-        data = cursor.execute(f"""
-            SELECT * FROM books WHERE ISBN = '{ISBN}'
-        """)
+        QUERY = """
+            SELECT * FROM books WHERE ISBN = ?
+        """
+
+        data = self._db.fetchall(QUERY, (ISBN,))
 
         if not data:
             return []
@@ -74,57 +77,65 @@ class SQLiteBookRepository(BookRepository):
         return [self.model_to_entity(BookModel(**book)) for book in data]
 
     def create(self, entity: Book) -> Book:
-        cursor = self._db.cursor()
+        QUERY = """
+            INSERT INTO books (id, name, author, ISBN, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)
+        """
+
         model = self.entity_to_model(entity)
 
-        cursor.execute(f"""
-            INSERT INTO books (id, name, author, ISBN, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)
-        """, (
-            model.book.id,
-            model.book.name,
-            model.book.author,
-            model.book.ISBN,
-            model.created_at,
-            model.updated_at
+        model_dict = model.to_dict()
+
+        self._db.execute(
+            QUERY, (
+            model_dict["id"],
+            model_dict["name"],
+            model_dict["author"],
+            model_dict["ISBN"],
+            model_dict["created_at"],
+            model_dict["updated_at"]
         ))
 
-        self._db.commit(cursor)
+        self._db.commit()
 
         return entity
 
     def update(self, entity: Book) -> Book:
-        cursor = self._db.cursor()
+        QUERY = """
+            UPDATE books SET name = ?, author = ?, ISBN = ?, updated_at = ? WHERE id = ?
+        """
+
         model = self.entity_to_model(entity)
 
-        cursor.execute(f"""
-            UPDATE books SET name = ?, author = ?, ISBN = ?, updated_at = ? WHERE id = ?
-        """, (
-            model.book.name,
-            model.book.author,
-            model.book.ISBN,
-            model.updated_at,
-            model.book.id
+        model_dict = model.to_dict()
+
+        self._db.execute(QUERY, (
+            model_dict["name"],
+            model_dict["author"],
+            model_dict["ISBN"],
+            model_dict["updated_at"],
+            model_dict["id"]
         ))
 
-        self._db.commit(cursor)
+        self._db.commit()
 
         return entity
 
-    def delete(self, id: str) -> None:
-        cursor = self._db.cursor()
-
-        cursor.execute(f"""
+    def delete(self, entity_id: str) -> None:
+        QUERY = """
             DELETE FROM books WHERE id = ?
-        """, (id,))
+        """
 
-        self._db.commit(cursor)
+        self._db.execute(QUERY, (entity_id,))
+
+        self._db.commit()
 
     def get_by_created_at(self, created_at: datetime) -> list[Book]:
-        cursor = self._db.cursor()
+        QUERY = """
+            SELECT * FROM books WHERE created_at = ?
+        """
 
-        data = cursor.execute(f"""
-            SELECT * FROM books WHERE created_at = '{created_at}'
-        """)
+        created_at_timestamp = int(created_at.timestamp())
+        data = self._db.fetchall(QUERY, (created_at_timestamp,))
 
         if not data:
             return []
@@ -132,14 +143,14 @@ class SQLiteBookRepository(BookRepository):
         return [self.model_to_entity(BookModel(**book)) for book in data]
 
     def get_by_updated_at(self, updated_at: datetime) -> list[Book]:
-        cursor = self._db.cursor()
+        QUERY = """
+            SELECT * FROM books WHERE updated_at = ?
+        """
+        updated_at_timestamp = int(updated_at.timestamp())
 
-        data = cursor.execute(f"""
-            SELECT * FROM books WHERE updated_at = '{updated_at}'
-        """)
+        data = self._db.fetchall(QUERY, (updated_at_timestamp,))
 
         if not data:
             return []
 
         return [self.model_to_entity(BookModel(**book)) for book in data]
-

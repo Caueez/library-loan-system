@@ -1,6 +1,6 @@
 
 from contextlib import contextmanager
-from sqlite3 import Connection, connect
+from sqlite3 import Connection, connect, Row
 from typing import Any, Optional
 
 
@@ -13,7 +13,7 @@ class SqliteImplementation:
         if not self._uri:
             raise Exception("URI não informada")
 
-        self.connection = connect(self._uri)
+        self._connection = connect(self._uri)
 
     @contextmanager
     def transaction(self):
@@ -36,7 +36,7 @@ class SqliteImplementation:
         finally:
             cursor.close()
 
-    def fetchone(self, query: str, params: tuple[Optional[str | int], ...] = ()) -> Any:
+    def fetchone(self, query: str, params: tuple[Optional[str | int], ...] = ()) -> Optional[Row]:
         if not self._connection:
             raise Exception("Conexão não estabelecida")
 

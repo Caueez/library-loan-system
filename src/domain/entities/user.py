@@ -3,14 +3,14 @@ from __future__ import annotations
 
 
 class User:
-    def __init__(self, id: str, name: str, cpf: str):
-        self._id = id
+    def __init__(self, id_user: str, name: str, cpf: str):
+        self._id_user = id_user
         self._name = name
         self._cpf = cpf
 
     @property
-    def id(self):
-        return self._id
+    def id_user(self):
+        return self._id_user
 
     @property
     def cpf(self):

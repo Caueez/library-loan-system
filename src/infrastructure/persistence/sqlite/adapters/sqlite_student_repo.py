@@ -1,7 +1,9 @@
 
 from datetime import datetime
+from typing import Optional
 
 from application.ports.student_repo import StudentRepository
+
 from domain.entities.student import Student
 
 from infrastructure.persistence.sqlite.models.student import StudentModel
@@ -15,10 +17,10 @@ class SQLiteStudentRepository(StudentRepository):
     @staticmethod
     def model_to_entity(model: StudentModel) -> Student:
         return Student.recovery(
-            id=model.student.id,
-            name=model.student.name,
-            cpf=model.student.cpf,
-            matriculation=model.student.matriculation
+            id_user=model.entity.id_user,
+            name=model.entity.name,
+            cpf=model.entity.cpf,
+            matriculation=model.entity.matriculation
         )
 
     @staticmethod
@@ -26,48 +28,129 @@ class SQLiteStudentRepository(StudentRepository):
         return StudentModel.create(entity)
 
     def create(self, entity: Student) -> Student:
-        cursor = self._db.cursor()
+        QUERY = """
+            INSERT INTO students (id, name, cpf, matriculation, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """
 
         model = self.entity_to_model(entity)
 
-        cursor.execute(f"""
-            INSERT INTO students (id, name, cpf, matriculation, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)
-        """, (
-            model.student.id,
-            model.student.name,
-            model.student.cpf,
-            model.student.matriculation,
-            model.created_at,
-            model.updated_at
+        model_dict = model.to_dict()
+
+        self._db.execute(QUERY, (
+            model_dict["id_user"],
+            model_dict["name"],
+            model_dict["cpf"],
+            model_dict["matriculation"],
+            model_dict["created_at"],
+            model_dict["updated_at"]
         ))
 
-        self._db.commit(cursor)
+        self._db.commit()
 
         return entity
 
     def update(self, entity: Student) -> Student:
-        raise NotImplementedError
+        QUERY = """
+            UPDATE students
+            SET name = ?, cpf = ?, matriculation = ?, updated_at = ?
+            WHERE id = ?
+        """
 
-    def delete(self, id: str) -> None:
-        raise NotImplementedError
+        model = self.entity_to_model(entity)
+        model_dict = model.to_dict()
 
-    def get_by_id(self, id: str) -> Student | None:
-        raise NotImplementedError
+        self._db.execute(QUERY, (
+            model_dict["name"],
+            model_dict["cpf"],
+            model_dict["matriculation"],
+            model_dict["updated_at"],
+            model_dict["id_user"],
+        ))
+
+        self._db.commit()
+
+        return entity
+
+    def delete(self, entity_id: str) -> None:
+        QUERY = """
+            DELETE FROM students WHERE id = ?
+        """
+
+        self._db.execute(QUERY, (entity_id,))
+
+        self._db.commit()
+
+    def get_by_id(self, entity_id: str) -> Optional[Student]:
+        QUERY = """
+            SELECT * FROM students WHERE id = ?
+        """
+
+        data = self._db.fetchone(QUERY, (entity_id,))
+
+        if not data:
+            return None
+
+        return self.model_to_entity(StudentModel(**data))
 
     def get_by_created_at(self, created_at: datetime) -> list[Student]:
-        raise NotImplementedError
+        QUERY = """
+            SELECT * FROM students WHERE created_at = ?
+        """
+
+        created_at_timestamp = int(created_at.timestamp())
+        data = self._db.fetchall(QUERY, (created_at_timestamp,))
+
+        if not data:
+            return []
+
+        return [self.model_to_entity(StudentModel(**student)) for student in data]
 
     def get_by_updated_at(self, updated_at: datetime) -> list[Student]:
-        raise NotImplementedError
+        QUERY = """
+            SELECT * FROM students WHERE updated_at = ?
+        """
 
-    def get_by_bame(self, name: str) -> list[Student]:
-        raise NotImplementedError
+        updated_at_timestamp = int(updated_at.timestamp())
+        data = self._db.fetchall(QUERY, (updated_at_timestamp,))
 
-    def get_by_cpf(self, cpf: str) -> Student | None:
-        raise NotImplementedError
+        if not data:
+            return []
 
-    def get_by_matriculation(self, matriculation: datetime) -> Student | None:
-        raise NotImplementedError
+        return [self.model_to_entity(StudentModel(**student)) for student in data]
 
+    def get_by_name(self, name: str) -> list[Student]:
+        QUERY = """
+            SELECT * FROM students WHERE name = ?
+        """
 
-    
+        data = self._db.fetchall(QUERY, (name,))
+
+        if not data:
+            return []
+
+        return [self.model_to_entity(StudentModel(**student)) for student in data]
+
+    def get_by_cpf(self, cpf: str) -> Optional[Student]:
+        QUERY = """
+            SELECT * FROM students WHERE cpf = ?
+        """
+
+        data = self._db.fetchone(QUERY, (cpf,))
+
+        if not data:
+            return None
+
+        return self.model_to_entity(StudentModel(**data))
+
+    def get_by_matriculation(self, matriculation: str) -> Optional[Student]:
+        QUERY = """
+            SELECT * FROM students WHERE matriculation = ?
+        """
+        
+        data = self._db.fetchone(QUERY, (matriculation,))
+
+        if not data:
+            return None
+
+        return self.model_to_entity(StudentModel(**data))
