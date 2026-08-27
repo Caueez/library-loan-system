@@ -1,12 +1,11 @@
 
-from datetime import datetime, timedelta
-from typing import Optional
+from datetime import datetime
 
 from application.ports.student_repo import StudentRepository
 from domain.entities.student import Student
 
-from infrastructure.persistence.models.student import StudentModel
-from infrastructure.persistence.sqlite import SqliteImplementation
+from infrastructure.persistence.sqlite.models.student import StudentModel
+from infrastructure.persistence.sqlite.implementation import SqliteImplementation
 
 
 class SQLiteStudentRepository(StudentRepository):

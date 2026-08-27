@@ -5,9 +5,9 @@ from typing import Optional
 from application.ports.loan_repo import BookLoanRepository
 
 from domain.entities.loan import BookLoan
-from infrastructure.persistence.models.loan import LoanModel
+from infrastructure.persistence.sqlite.models.loan import LoanModel
 
-from infrastructure.persistence.sqlite import SqliteImplementation
+from infrastructure.persistence.sqlite.implementation import SqliteImplementation
 
 
 

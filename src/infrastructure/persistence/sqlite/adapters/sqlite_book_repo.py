@@ -5,9 +5,9 @@ from typing import Optional
 from application.ports.book_repo import BookRepository
 
 from domain.entities.book import Book
-from infrastructure.persistence.models.book import BookModel
+from infrastructure.persistence.sqlite.models.book import BookModel
 
-from infrastructure.persistence.sqlite import SqliteImplementation
+from infrastructure.persistence.sqlite.implementation import SqliteImplementation
 
 
 
