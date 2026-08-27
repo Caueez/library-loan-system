@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional
 
 from application.ports.loan_repo import BookLoanRepository
@@ -29,7 +29,7 @@ class SQLiteBookRepository(BookLoanRepository):
 
     def get_by_id(self, entity_id: str) -> Optional[BookLoan]:
         QUERY = """
-            SELECT * FROM loans WHERE id = ?
+            SELECT * FROM loans WHERE id_loan = ?
         """
         
         data = self._db.fetchone(QUERY, (entity_id,))
@@ -73,16 +73,14 @@ class SQLiteBookRepository(BookLoanRepository):
 
         return [self.model_to_entity(LoanModel(**loan)) for loan in data]
 
-    def get_checked_today(self) -> list[BookLoan]:
+    def get_checked_out_range(self, start_date: datetime, end_date: datetime) -> list[BookLoan]:
         QUERY = """
             SELECT * FROM loans
             WHERE checked_out >= ? AND checked_out < ?
         """
-        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        tomorrow = today + timedelta(days=1)
         data = self._db.fetchall(
             QUERY,
-            (int(today.timestamp()), int(tomorrow.timestamp())),
+            (int(start_date.timestamp()), int(end_date.timestamp())),
         )
 
         if not data:
@@ -90,17 +88,9 @@ class SQLiteBookRepository(BookLoanRepository):
 
         return [self.model_to_entity(LoanModel(**loan)) for loan in data]
 
-    def set_book_return(self, entity_id: str) -> None:
-        QUERY = """
-            UPDATE loans SET checked_out = ? WHERE id_loan = ?
-        """
-
-        with self._db.transaction():
-            self._db.execute(QUERY, (int(datetime.now().timestamp()), entity_id))
-
     def create(self, entity: BookLoan) -> BookLoan:
         QUERY = """
-            INSERT INTO loans (id, id_book, id_user, checked_in, checked_out, created_at, updated_at)
+            INSERT INTO loans (id_loan, id_book, id_student, checked_in, checked_out, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         """
         model = self.entity_to_model(entity)
@@ -110,9 +100,9 @@ class SQLiteBookRepository(BookLoanRepository):
             self._db.execute(
                 QUERY,
                 (
-                    model_dict["id"],
+                    model_dict["id_loan"],
                     model_dict["id_book"],
-                    model_dict["id_user"],
+                    model_dict["id_student"],
                     model_dict["checked_in"],
                     model_dict["checked_out"],
                     model_dict["created_at"],
@@ -125,8 +115,8 @@ class SQLiteBookRepository(BookLoanRepository):
     def update(self, entity: BookLoan) -> BookLoan:
         QUERY = """
             UPDATE loans
-            SET id_book = ?, id_user = ?, checked_in = ?, checked_out = ?, updated_at = ?
-            WHERE id = ?
+            SET id_book = ?, id_student = ?, checked_in = ?, checked_out = ?, updated_at = ?
+            WHERE id_loan = ?
         """
         model = self.entity_to_model(entity)
         model_dict = model.to_dict()
@@ -136,11 +126,11 @@ class SQLiteBookRepository(BookLoanRepository):
                 QUERY,
                 (
                     model_dict["id_book"],
-                    model_dict["id_user"],
+                    model_dict["id_student"],
                     model_dict["checked_in"],
                     model_dict["checked_out"],
                     model_dict["updated_at"],
-                    model_dict["id"],
+                    model_dict["id_loan"],
                 ),
             )
 
@@ -148,7 +138,7 @@ class SQLiteBookRepository(BookLoanRepository):
 
     def delete(self, entity_id: str) -> None:
         QUERY = """
-            DELETE FROM loans WHERE id = ?
+            DELETE FROM loans WHERE id_loan = ?
         """
 
         with self._db.transaction():

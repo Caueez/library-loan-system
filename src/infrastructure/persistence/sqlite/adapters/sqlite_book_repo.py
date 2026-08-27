@@ -29,7 +29,7 @@ class SQLiteBookRepository(BookRepository):
 
     def get_by_id(self, entity_id: str) -> Optional[Book]:
         QUERY = """
-            SELECT * FROM books WHERE id = ?
+            SELECT * FROM books WHERE id_book = ?
         """
 
         data = self._db.fetchone(QUERY, (entity_id,))
@@ -64,12 +64,12 @@ class SQLiteBookRepository(BookRepository):
 
         return [self.model_to_entity(BookModel(**book)) for book in data]
     
-    def get_by_ISBN(self, ISBN: str) -> list[Book]:
+    def get_by_iSBN(self, iSBN: str) -> list[Book]:
         QUERY = """
-            SELECT * FROM books WHERE ISBN = ?
+            SELECT * FROM books WHERE iSBN = ?
         """
 
-        data = self._db.fetchall(QUERY, (ISBN,))
+        data = self._db.fetchall(QUERY, (iSBN,))
 
         if not data:
             return []
@@ -78,7 +78,7 @@ class SQLiteBookRepository(BookRepository):
 
     def create(self, entity: Book) -> Book:
         QUERY = """
-            INSERT INTO books (id, name, author, ISBN, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO books (id_book, name, author, iSBN, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)
         """
 
         model = self.entity_to_model(entity)
@@ -88,10 +88,10 @@ class SQLiteBookRepository(BookRepository):
         with self._db.transaction():
             self._db.execute(
                 QUERY, (
-                model_dict["id"],
+                model_dict["id_book"],
                 model_dict["name"],
                 model_dict["author"],
-                model_dict["ISBN"],
+                model_dict["iSBN"],
                 model_dict["created_at"],
                 model_dict["updated_at"]
             ))
@@ -100,7 +100,7 @@ class SQLiteBookRepository(BookRepository):
 
     def update(self, entity: Book) -> Book:
         QUERY = """
-            UPDATE books SET name = ?, author = ?, ISBN = ?, updated_at = ? WHERE id = ?
+            UPDATE books SET name = ?, author = ?, iSBN = ?, updated_at = ? WHERE id_book = ?
         """
 
         model = self.entity_to_model(entity)
@@ -111,16 +111,16 @@ class SQLiteBookRepository(BookRepository):
             self._db.execute(QUERY, (
                 model_dict["name"],
                 model_dict["author"],
-                model_dict["ISBN"],
+                model_dict["iSBN"],
                 model_dict["updated_at"],
-                model_dict["id"]
+                model_dict["id_book"]
             ))
 
         return entity
 
     def delete(self, entity_id: str) -> None:
         QUERY = """
-            DELETE FROM books WHERE id = ?
+            DELETE FROM books WHERE id_book = ?
         """
         with self._db.transaction():
             self._db.execute(QUERY, (entity_id,))
