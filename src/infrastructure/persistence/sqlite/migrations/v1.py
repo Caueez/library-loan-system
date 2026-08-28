@@ -1,5 +1,5 @@
 
-from infrastructure.persistence.sqlite.implementation import SqliteImplementation
+from infrastructure.persistence.interface import DBInterface
 
 BOOK_TABLE = """
     CREATE TABLE IF NOT EXISTS books (
@@ -48,6 +48,6 @@ STUDENT_TABLE = """
 TABLES = [STUDENT_TABLE, BOOK_TABLE, LOAN_TABLE]
 
 
-def migrate_v1(db: SqliteImplementation):
+def migrate_v1(db: DBInterface):
     for table in TABLES:
         db.execute(query=table)

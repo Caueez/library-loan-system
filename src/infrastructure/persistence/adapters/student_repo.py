@@ -2,17 +2,18 @@
 from datetime import datetime
 from typing import Any, Optional
 
-from application.ports.student_repo import StudentRepository
+from application.ports.student_repo import StudentRepositoryInterface
 
 from domain.entities.student import Student
 
-from infrastructure.persistence.sqlite.models.student import StudentModel
-from infrastructure.persistence.sqlite.implementation import SqliteImplementation
+from infrastructure.persistence.models.student import StudentModel
+from infrastructure.persistence.interface import DBInterface
 
 
-class SQLiteStudentRepository(StudentRepository):
-    def __init__(self, db: SqliteImplementation):
+class StudentRepository(StudentRepositoryInterface):
+    def __init__(self, db: DBInterface, QUERIES: dict[str, str]):
         self._db = db
+        self._QUERIES = QUERIES
 
     @staticmethod
     def row_to_model(row: Any) -> StudentModel:
@@ -32,62 +33,43 @@ class SQLiteStudentRepository(StudentRepository):
         return StudentModel.create(entity)
 
     def create(self, entity: Student) -> Student:
-        QUERY = """
-            INSERT INTO students (id_student, name, cpf, matriculation, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """
-
         model = self.entity_to_model(entity)
-
-        model_dict = model.to_dict()
+        model_dto = model.to_dto()
 
         with self._db.transaction():
-            self._db.execute(QUERY, (
-                model_dict["id_student"],
-                model_dict["name"],
-                model_dict["cpf"],
-                model_dict["matriculation"],
-                model_dict["created_at"],
-                model_dict["updated_at"]
-            ))
+            self._db.execute(self._QUERIES["create_student"], (
+                model_dto.id_student, 
+                model_dto.name, 
+                model_dto.cpf, 
+                model_dto.matriculation, 
+                model_dto.created_at, 
+                model_dto.updated_at,
+                )
+            )
 
         return entity
 
     def update(self, entity: Student) -> Student:
-        QUERY = """
-            UPDATE students
-            SET name = ?, cpf = ?, matriculation = ?, updated_at = ?
-            WHERE id_student = ?
-        """
-
         model = self.entity_to_model(entity)
-        model_dict = model.to_dict()
+        model_dto = model.to_dto()
 
         with self._db.transaction():
-            self._db.execute(QUERY, (
-                model_dict["name"],
-                model_dict["cpf"],
-                model_dict["matriculation"],
-                model_dict["updated_at"],
-                model_dict["id_student"],
+            self._db.execute(self._QUERIES["update_student"], (
+                model_dto.name, 
+                model_dto.cpf,
+                model_dto.matriculation,
+                model_dto.updated_at,
+                model_dto.id_student, 
             ))
 
         return entity
 
     def delete(self, entity_id: str) -> None:
-        QUERY = """
-            DELETE FROM students WHERE id_student = ?
-        """
-
         with self._db.transaction():
-            self._db.execute(QUERY, (entity_id,))
+            self._db.execute(self._QUERIES["delete_student"], (entity_id,))
 
     def get_by_id(self, entity_id: str) -> Optional[Student]:
-        QUERY = """
-            SELECT * FROM students WHERE id_student = ?
-        """
-
-        data = self._db.fetchone(QUERY, (entity_id,))
+        data = self._db.fetchone(self._QUERIES["get_student_by_id"], (entity_id,))
 
         if not data:
             return None
@@ -97,12 +79,9 @@ class SQLiteStudentRepository(StudentRepository):
         return model.entity
 
     def get_by_created_at(self, created_at: datetime) -> list[Student]:
-        QUERY = """
-            SELECT * FROM students WHERE created_at = ?
-        """
-
         created_at_timestamp = int(created_at.timestamp())
-        data = self._db.fetchall(QUERY, (created_at_timestamp,))
+
+        data = self._db.fetchall(self._QUERIES["get_student_by_created_at"], (created_at_timestamp,))
 
         if not data:
             return []
@@ -112,12 +91,9 @@ class SQLiteStudentRepository(StudentRepository):
         return [model.entity for model in models]
 
     def get_by_updated_at(self, updated_at: datetime) -> list[Student]:
-        QUERY = """
-            SELECT * FROM students WHERE updated_at = ?
-        """
-
         updated_at_timestamp = int(updated_at.timestamp())
-        data = self._db.fetchall(QUERY, (updated_at_timestamp,))
+
+        data = self._db.fetchall(self._QUERIES["get_student_by_updated_at"], (updated_at_timestamp,))
 
         if not data:
             return []
@@ -127,11 +103,7 @@ class SQLiteStudentRepository(StudentRepository):
         return [model.entity for model in models]
 
     def get_by_name(self, name: str) -> list[Student]:
-        QUERY = """
-            SELECT * FROM students WHERE name = ?
-        """
-
-        data = self._db.fetchall(QUERY, (name,))
+        data = self._db.fetchall(self._QUERIES["get_student_by_name"], (name,))
 
         if not data:
             return []
@@ -141,11 +113,7 @@ class SQLiteStudentRepository(StudentRepository):
         return [model.entity for model in models]
 
     def get_by_cpf(self, cpf: str) -> Optional[Student]:
-        QUERY = """
-            SELECT * FROM students WHERE cpf = ?
-        """
-
-        data = self._db.fetchone(QUERY, (cpf,))
+        data = self._db.fetchone(self._QUERIES["get_student_by_cpf"], (cpf,))
 
         if not data:
             return None
@@ -154,12 +122,8 @@ class SQLiteStudentRepository(StudentRepository):
 
         return model.entity
 
-    def get_by_matriculation(self, matriculation: str) -> Optional[Student]:
-        QUERY = """
-            SELECT * FROM students WHERE matriculation = ?
-        """
-        
-        data = self._db.fetchone(QUERY, (matriculation,))
+    def get_by_matriculation(self, matriculation: str) -> Optional[Student]:        
+        data = self._db.fetchone(self._QUERIES["get_student_by_matriculation"], (matriculation,))
 
         if not data:
             return None

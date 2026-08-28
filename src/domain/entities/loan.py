@@ -4,6 +4,15 @@ from datetime import datetime
 from typing import Optional
 from uuid import uuid4
 
+from dataclasses import dataclass
+
+@dataclass
+class BookLoanDTO:
+    id_loan: str
+    id_book: str
+    id_student: str
+    checked_in: datetime
+    checked_out: Optional[datetime]
 
 class BookLoan:
     def __init__(self, id_loan: str, id_book: str, id_student: str, checked_in: datetime, checked_out: Optional[datetime])-> None:
@@ -63,11 +72,11 @@ class BookLoan:
     def book_returned(self, checked_out: datetime) -> None:
         self._checked_out = checked_out
 
-    def to_dict(self) -> dict[str, str | int]:
-        return {
-            'id': self.id_loan,
-            'id_book': self.id_book,
-            'id_student': self.id_student,
-            'checked_in': int(self.checked_in.timestamp()),
-            'checked_out': int(self.checked_out.timestamp()) if self.checked_out else 0
-        }
+    def to_dto(self) -> BookLoanDTO:
+        return BookLoanDTO(
+            id_loan=self._id_loan,
+            id_book=self._id_book,
+            id_student=self._id_student,
+            checked_in=self._checked_in,
+            checked_out=self._checked_out
+        )

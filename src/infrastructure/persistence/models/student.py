@@ -5,6 +5,17 @@ from datetime import datetime
 from domain.values.date import current_date_utc
 from src.domain.entities.student import Student
 
+from dataclasses import dataclass
+
+@dataclass
+class StudentModelDTO:
+    id_student: str
+    name: str
+    cpf: str
+    matriculation: str
+    created_at: int
+    updated_at: int
+
 
 class StudentModel:
     def __init__(self, entity: Student, created_at: datetime, updated_at: datetime) -> None:
@@ -31,9 +42,16 @@ class StudentModel:
             updated_at=datetime.fromtimestamp(updated_at)
         )
 
-    def to_dict(self) -> dict[str, str | int]:
-        entity_dict = self.entity.to_dict()
-        model_dict : dict[str, str | int] = {**entity_dict}
-        model_dict['created_at'] = int(self.created_at.timestamp())
-        model_dict['updated_at'] = int(self.updated_at.timestamp())
-        return model_dict
+    def to_dto(self) -> StudentModelDTO:
+        entity_dto = self.entity.to_dto()
+
+        dto = StudentModelDTO(
+            id_student=entity_dto.id_student,
+            name=entity_dto.name,
+            cpf=entity_dto.cpf,
+            matriculation=entity_dto.matriculation,
+            created_at=int(self.created_at.timestamp()),
+            updated_at=int(self.updated_at.timestamp())
+        )
+
+        return dto

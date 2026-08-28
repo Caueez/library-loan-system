@@ -1,10 +1,10 @@
 from typing import Optional, Protocol
 
-from application.ports.default_repo import AbstractRepository
+from application.ports.abstract_repo import AbstractRepositoryInterface
 from src.domain.entities.student import Student
 
 
-class StudentRepository(AbstractRepository[Student], Protocol):
+class StudentRepositoryInterface(AbstractRepositoryInterface[Student], Protocol):
     def get_by_name(self, name: str) -> list[Student]: ...
     
     def get_by_cpf(self, cpf: str) -> Optional[Student]: ...

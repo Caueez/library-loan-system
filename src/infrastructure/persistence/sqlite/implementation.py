@@ -1,10 +1,11 @@
-
 from contextlib import contextmanager
-from sqlite3 import Connection, connect, Row
 from typing import Optional
 
+from sqlite3 import Connection, connect, Row
 
-class SqliteImplementation:
+from infrastructure.persistence.interface import DBInterface
+
+class SqliteDB(DBInterface):
     def __init__(self, uri: str) -> None:        
         self._uri = uri
         self._connection : Connection = connect(uri)

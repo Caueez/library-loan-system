@@ -1,6 +1,5 @@
 
-
-from infrastructure.persistence.sqlite.implementation import SqliteImplementation
+from infrastructure.persistence.interface import DBInterface
 
 from infrastructure.persistence.sqlite.migrations import (
     MIGRATIONS, 
@@ -11,11 +10,11 @@ from infrastructure.persistence.sqlite.migrations import (
 
 
 class Migration:
-    def __init__(self, db: SqliteImplementation) -> None:
+    def __init__(self, db: DBInterface) -> None:
         self._db = db
 
     @staticmethod
-    def create_schema_version_table(db: SqliteImplementation) -> None:
+    def create_schema_version_table(db: DBInterface) -> None:
         db.execute(SCHEMA_VERSION_TABLE)
         db.execute("""
             INSERT INTO schema_version (version)
@@ -26,7 +25,7 @@ class Migration:
         """)
 
     @staticmethod
-    def get_current_version(db: SqliteImplementation) -> int:
+    def get_current_version(db: DBInterface) -> int:
         data = db.fetchone(GET_SCHEMA_VERSION)
 
         if data:
