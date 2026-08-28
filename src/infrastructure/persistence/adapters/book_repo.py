@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import Any, Optional
 
-from application.ports.book_repo import BookRepositoryInterface
+from application.ports.book_repo import BookRepository
 
 from domain.entities.book import Book
 
@@ -10,10 +10,10 @@ from infrastructure.persistence.models.book import BookModel
 from infrastructure.persistence.interface import DBInterface
 
 
-class BookRepository(BookRepositoryInterface):
-    def __init__(self, db: DBInterface, QUERIES: dict[str, str]):
+class BookRepositoryAdapter(BookRepository):
+    def __init__(self, db: DBInterface, queries: dict[str, str]):
         self._db = db
-        self._QUERIES = QUERIES
+        self._queries = queries
 
     @staticmethod
     def row_to_model(row: Any) -> BookModel:
@@ -36,17 +36,16 @@ class BookRepository(BookRepositoryInterface):
 
     def create(self, entity: Book) -> Book:
         model = self.entity_to_model(entity)
-        model_dto = model.to_dto()
 
         with self._db.transaction():
             self._db.execute(
-                self._QUERIES["create_book"], (
-                model_dto.id_book,
-                model_dto.name,
-                model_dto.author,
-                model_dto.isbn,
-                model_dto.created_at,
-                model_dto.updated_at
+                self._queries["create_book"], (
+                model.entity.id_book,
+                model.entity.name,
+                model.entity.author,
+                model.entity.isbn,
+                model.created_at,
+                model.updated_at
             ))
 
         return entity
@@ -54,27 +53,25 @@ class BookRepository(BookRepositoryInterface):
     def update(self, entity: Book) -> Book:
         model = self.entity_to_model(entity)
 
-        model_dto = model.to_dto()
-
         with self._db.transaction():
-            self._db.execute(self._QUERIES["update_book"], (
-                model_dto.name,
-                model_dto.author,
-                model_dto.isbn,
-                model_dto.updated_at,
-                model_dto.id_book
+            self._db.execute(self._queries["update_book"], (
+                model.entity.name,
+                model.entity.author,
+                model.entity.isbn,
+                model.updated_at,
+                model.entity.id_book
             ))
 
         return entity
 
     def delete(self, entity_id: str) -> None:
         with self._db.transaction():
-            self._db.execute(self._QUERIES["delete_book"], (entity_id,))
+            self._db.execute(self._queries["delete_book"], (entity_id,))
 
 # GET METHODS -------------------------------
 
     def get_by_id(self, entity_id: str) -> Optional[Book]:
-        row = self._db.fetchone(self._QUERIES["get_book_by_id"], (entity_id,))
+        row = self._db.fetchone(self._queries["get_book_by_id"], (entity_id,))
 
         if not row:
             return None
@@ -85,7 +82,7 @@ class BookRepository(BookRepositoryInterface):
 
 
     def get_by_name(self, name: str) -> list[Book]:
-        data = self._db.fetchall(self._QUERIES["get_book_by_name"], (name,))
+        data = self._db.fetchall(self._queries["get_book_by_name"], (name,))
 
         if not data:
             return []
@@ -95,7 +92,7 @@ class BookRepository(BookRepositoryInterface):
         return [model.entity for model in models]
 
     def get_by_author(self, author: str) -> list[Book]:
-        data = self._db.fetchall(self._QUERIES["get_book_by_author"], (author,))
+        data = self._db.fetchall(self._queries["get_book_by_author"], (author,))
 
         if not data:
             return []
@@ -105,7 +102,7 @@ class BookRepository(BookRepositoryInterface):
         return [model.entity for model in models]
     
     def get_by_isbn(self, isbn: str) -> list[Book]:
-        data = self._db.fetchall(self._QUERIES["get_book_by_isbn"], (isbn,))
+        data = self._db.fetchall(self._queries["get_book_by_isbn"], (isbn,))
 
         if not data:
             return []
@@ -117,7 +114,7 @@ class BookRepository(BookRepositoryInterface):
 
     def get_by_created_at(self, created_at: datetime) -> list[Book]:
         created_at_timestamp = int(created_at.timestamp())
-        data = self._db.fetchall(self._QUERIES["get_book_by_created_at"], (created_at_timestamp,))
+        data = self._db.fetchall(self._queries["get_book_by_created_at"], (created_at_timestamp,))
 
         if not data:
             return []
@@ -129,7 +126,7 @@ class BookRepository(BookRepositoryInterface):
     def get_by_updated_at(self, updated_at: datetime) -> list[Book]:
         updated_at_timestamp = int(updated_at.timestamp())
 
-        data = self._db.fetchall(self._QUERIES["get_book_by_updated_at"], (updated_at_timestamp,))
+        data = self._db.fetchall(self._queries["get_book_by_updated_at"], (updated_at_timestamp,))
 
         if not data:
             return []

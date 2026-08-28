@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import Any, Optional
 
-from application.ports.student_repo import StudentRepositoryInterface
+from application.ports.student_repo import StudentRepository
 
 from domain.entities.student import Student
 
@@ -10,10 +10,10 @@ from infrastructure.persistence.models.student import StudentModel
 from infrastructure.persistence.interface import DBInterface
 
 
-class StudentRepository(StudentRepositoryInterface):
-    def __init__(self, db: DBInterface, QUERIES: dict[str, str]):
+class StudentRepositoryAdapter(StudentRepository):
+    def __init__(self, db: DBInterface, queries: dict[str, str]):
         self._db = db
-        self._QUERIES = QUERIES
+        self._queries = queries
 
     @staticmethod
     def row_to_model(row: Any) -> StudentModel:
@@ -34,16 +34,15 @@ class StudentRepository(StudentRepositoryInterface):
 
     def create(self, entity: Student) -> Student:
         model = self.entity_to_model(entity)
-        model_dto = model.to_dto()
 
         with self._db.transaction():
-            self._db.execute(self._QUERIES["create_student"], (
-                model_dto.id_student, 
-                model_dto.name, 
-                model_dto.cpf, 
-                model_dto.matriculation, 
-                model_dto.created_at, 
-                model_dto.updated_at,
+            self._db.execute(self._queries["create_student"], (
+                model.entity.id_student, 
+                model.entity.name, 
+                model.entity.cpf, 
+                model.entity.matriculation, 
+                model.created_at, 
+                model.updated_at,
                 )
             )
 
@@ -51,25 +50,24 @@ class StudentRepository(StudentRepositoryInterface):
 
     def update(self, entity: Student) -> Student:
         model = self.entity_to_model(entity)
-        model_dto = model.to_dto()
 
         with self._db.transaction():
-            self._db.execute(self._QUERIES["update_student"], (
-                model_dto.name, 
-                model_dto.cpf,
-                model_dto.matriculation,
-                model_dto.updated_at,
-                model_dto.id_student, 
+            self._db.execute(self._queries["update_student"], (
+                model.entity.name, 
+                model.entity.cpf,
+                model.entity.matriculation,
+                model.updated_at,
+                model.entity.id_student, 
             ))
 
         return entity
 
     def delete(self, entity_id: str) -> None:
         with self._db.transaction():
-            self._db.execute(self._QUERIES["delete_student"], (entity_id,))
+            self._db.execute(self._queries["delete_student"], (entity_id,))
 
     def get_by_id(self, entity_id: str) -> Optional[Student]:
-        data = self._db.fetchone(self._QUERIES["get_student_by_id"], (entity_id,))
+        data = self._db.fetchone(self._queries["get_student_by_id"], (entity_id,))
 
         if not data:
             return None
@@ -81,7 +79,7 @@ class StudentRepository(StudentRepositoryInterface):
     def get_by_created_at(self, created_at: datetime) -> list[Student]:
         created_at_timestamp = int(created_at.timestamp())
 
-        data = self._db.fetchall(self._QUERIES["get_student_by_created_at"], (created_at_timestamp,))
+        data = self._db.fetchall(self._queries["get_student_by_created_at"], (created_at_timestamp,))
 
         if not data:
             return []
@@ -93,7 +91,7 @@ class StudentRepository(StudentRepositoryInterface):
     def get_by_updated_at(self, updated_at: datetime) -> list[Student]:
         updated_at_timestamp = int(updated_at.timestamp())
 
-        data = self._db.fetchall(self._QUERIES["get_student_by_updated_at"], (updated_at_timestamp,))
+        data = self._db.fetchall(self._queries["get_student_by_updated_at"], (updated_at_timestamp,))
 
         if not data:
             return []
@@ -103,7 +101,7 @@ class StudentRepository(StudentRepositoryInterface):
         return [model.entity for model in models]
 
     def get_by_name(self, name: str) -> list[Student]:
-        data = self._db.fetchall(self._QUERIES["get_student_by_name"], (name,))
+        data = self._db.fetchall(self._queries["get_student_by_name"], (name,))
 
         if not data:
             return []
@@ -113,7 +111,7 @@ class StudentRepository(StudentRepositoryInterface):
         return [model.entity for model in models]
 
     def get_by_cpf(self, cpf: str) -> Optional[Student]:
-        data = self._db.fetchone(self._QUERIES["get_student_by_cpf"], (cpf,))
+        data = self._db.fetchone(self._queries["get_student_by_cpf"], (cpf,))
 
         if not data:
             return None
@@ -123,7 +121,7 @@ class StudentRepository(StudentRepositoryInterface):
         return model.entity
 
     def get_by_matriculation(self, matriculation: str) -> Optional[Student]:        
-        data = self._db.fetchone(self._QUERIES["get_student_by_matriculation"], (matriculation,))
+        data = self._db.fetchone(self._queries["get_student_by_matriculation"], (matriculation,))
 
         if not data:
             return None

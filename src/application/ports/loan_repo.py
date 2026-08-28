@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import Protocol
 
-from application.ports.abstract_repo import AbstractRepositoryInterface
+from application.ports.abstract_repo import AbstractRepository
 from src.domain.entities.loan import BookLoan
 
 
-class BookLoanRepositoryInterface(AbstractRepositoryInterface[BookLoan], Protocol):
+class BookLoanRepository(AbstractRepository[BookLoan], Protocol):
     def get_by_id_book(self, id_book: str) -> list[BookLoan]: ...
 
     def get_by_id_student(self, id_student: str) -> list[BookLoan]: ...

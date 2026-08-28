@@ -4,7 +4,7 @@ from typing import Generic, Optional, Protocol, TypeVar
 Entity = TypeVar('Entity')
 
 
-class AbstractRepositoryInterface(Protocol, Generic[Entity]):
+class AbstractRepository(Protocol, Generic[Entity]):
     def create(self, entity: Entity) -> Entity: ...
 
     def update(self, entity: Entity) -> Entity: ...

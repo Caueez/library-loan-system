@@ -1,10 +1,10 @@
 from typing import Protocol
 
-from application.ports.abstract_repo import AbstractRepositoryInterface
+from application.ports.abstract_repo import AbstractRepository
 from src.domain.entities.book import Book
 
 
-class BookRepositoryInterface(AbstractRepositoryInterface[Book], Protocol):
+class BookRepository(AbstractRepository[Book], Protocol):
     def get_by_name(self, name: str) -> list[Book]: ...
 
     def get_by_author(self, author: str) -> list[Book]: ...

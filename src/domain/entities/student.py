@@ -4,15 +4,6 @@ from uuid import uuid4
 
 from domain.entities.user import User
 
-from dataclasses import dataclass
-
-@dataclass
-class StudentDTO:
-    id_student: str
-    name: str
-    cpf: str
-    matriculation: str
-
 
 class Student(User):
     def __init__(self, id_student: str, name: str, cpf: str, matriculation: str)-> None:
@@ -50,11 +41,4 @@ class Student(User):
             cpf=cpf, 
             matriculation=matriculation
             )
-
-    def to_dto(self) -> StudentDTO:
-        return StudentDTO(
-            id_student=self.id_student,
-            name=self.name,
-            cpf=self.cpf,
-            matriculation=self.matriculation   
-        )
+    

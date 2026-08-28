@@ -2,14 +2,6 @@ from __future__ import annotations
 
 from uuid import uuid4
 
-from dataclasses import dataclass
-
-@dataclass
-class BookDTO:
-    id_book: str
-    name: str
-    author: str
-    isbn: str
 
 class Book:
     def __init__(self, id_book: str, name: str, author: str, isbn: str)-> None:
@@ -66,11 +58,4 @@ class Book:
             author=author, 
             isbn=isbn
             )
-
-    def to_dto(self) -> BookDTO:
-        return BookDTO(
-            id_book=self._id,
-            name=self._name,
-            author=self._author,
-            isbn=self._isbn
-        )
+    
