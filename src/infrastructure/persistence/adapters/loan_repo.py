@@ -44,8 +44,8 @@ class BookLoanRepositoryAdapter(BookLoanRepository):
                     model.entity.id_student,
                     model.entity.checked_in,
                     model.entity.checked_out,
-                    model.created_at,
-                    model.updated_at,
+                    model.created_at_timestamp,
+                    model.updated_at_timestamp,
                 ),
             )
 
@@ -53,7 +53,7 @@ class BookLoanRepositoryAdapter(BookLoanRepository):
 
     def update(self, entity: BookLoan) -> BookLoan:
         model = self.entity_to_model(entity)
-        
+
         with self._db.transaction():
             self._db.execute(
                 self._queries["update_loan"],

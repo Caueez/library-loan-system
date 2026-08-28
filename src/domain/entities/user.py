@@ -9,16 +9,13 @@ class User:
         self._cpf = cpf
 
     @property
-    def id_user(self):
-        return self._id_user
+    def id_user(self): return self._id_user
 
     @property
-    def cpf(self):
-        return self._cpf
+    def cpf(self): return self._cpf
 
     @property
-    def name(self):
-        return self._name
+    def name(self): return self._name
 
     @name.setter
     def name(self, new_name: str):

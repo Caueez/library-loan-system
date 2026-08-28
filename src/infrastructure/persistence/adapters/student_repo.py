@@ -41,8 +41,8 @@ class StudentRepositoryAdapter(StudentRepository):
                 model.entity.name, 
                 model.entity.cpf, 
                 model.entity.matriculation, 
-                model.created_at, 
-                model.updated_at,
+                model.created_at_timestamp, 
+                model.updated_at_timestamp,
                 )
             )
 

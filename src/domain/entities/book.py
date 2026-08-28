@@ -12,20 +12,16 @@ class Book:
         self._isbn = isbn
 
     @property
-    def id_book(self) -> str:
-        return self._id
+    def id_book(self) -> str: return self._id
 
     @property
-    def name(self) -> str:
-        return self._name
+    def name(self) -> str: return self._name
 
     @property
-    def author(self) -> str:
-        return self._author
+    def author(self) -> str: return self._author
 
     @property
-    def isbn(self) -> str:
-        return self._isbn
+    def isbn(self) -> str: return self._isbn
 
     @name.setter
     def name(self, new_name: str) -> None:
