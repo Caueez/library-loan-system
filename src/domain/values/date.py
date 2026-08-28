@@ -11,6 +11,6 @@ def timestamp_to_date(value: int) -> datetime:
 
 def date_to_timestamp(value: datetime) -> int:
     if value.tzinfo is None or value.utcoffset() is None:
-        raise ValueError("Date must be in UTC (timezone-aware)")
+        raise ValueError("Datetime must be timezone-aware")
     
     return int(value.timestamp())

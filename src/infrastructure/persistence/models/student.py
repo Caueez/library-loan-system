@@ -30,9 +30,14 @@ class StudentModel:
         )
 
     @staticmethod
-    def recovery(entity: Student, created_at: int, updated_at: int) -> StudentModel:
+    def recovery(id_student: str, name: str, cpf: str, matriculation: str, created_at: int, updated_at: int) -> StudentModel:
         return StudentModel(
-            entity=entity,
+            entity=Student.recovery(
+                id_student=id_student,
+                name=name,
+                cpf=cpf,
+                matriculation=matriculation
+            ),
             created_at=timestamp_to_date(created_at),
             updated_at=timestamp_to_date(updated_at)
         )

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Optional
 
 from domain.values.date import current_date_utc, date_to_timestamp, timestamp_to_date
 from src.domain.entities.loan import BookLoan
@@ -30,9 +31,15 @@ class LoanModel:
         )
 
     @staticmethod
-    def recovery(entity: BookLoan, created_at: int, updated_at: int) -> LoanModel:
+    def recovery(id_loan: str, id_book: str, id_student: str, checked_in: int, checked_out: Optional[int], created_at: int, updated_at: int) -> LoanModel:
         return LoanModel(
-            entity=entity,
+            entity=BookLoan.recovery(
+                id_loan=id_loan,
+                id_book=id_book, 
+                id_student=id_student, 
+                checked_in=checked_in,
+                checked_out=checked_out
+            ),
             created_at=timestamp_to_date(created_at),
             updated_at=timestamp_to_date(updated_at)
         )

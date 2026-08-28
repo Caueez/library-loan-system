@@ -18,12 +18,10 @@ class StudentRepositoryAdapter(StudentRepository):
     @staticmethod
     def row_to_model(row: Any) -> StudentModel:
         return StudentModel.recovery(
-            entity=Student.recovery(
-                id_student=row["id_student"],
-                name=row["name"],
-                cpf=row["cpf"],
-                matriculation=row["matriculation"]
-            ),
+            id_student=row["id_student"],
+            name=row["name"],
+            cpf=row["cpf"],
+            matriculation=row["matriculation"],
             created_at=row["created_at"],
             updated_at=row["updated_at"]
         )

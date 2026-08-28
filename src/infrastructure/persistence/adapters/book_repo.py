@@ -18,12 +18,10 @@ class BookRepositoryAdapter(BookRepository):
     @staticmethod
     def row_to_model(row: Any) -> BookModel:
         return BookModel.recovery(
-            entity=Book.recovery(
-                id_book=row["id_book"],
-                name=row["name"],
-                author=row["author"],
-                isbn=row["isbn"]
-            ),
+            id_book=row["id_book"],
+            name=row["name"],
+            author=row["author"],
+            isbn=row["isbn"],
             created_at=row["created_at"],
             updated_at=row["updated_at"]
         )

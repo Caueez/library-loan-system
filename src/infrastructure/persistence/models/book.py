@@ -30,9 +30,14 @@ class BookModel:
         )
 
     @staticmethod
-    def recovery(entity: Book, created_at: int, updated_at: int) -> BookModel:
+    def recovery(id_book: str, name: str, author: str, isbn: str, created_at: int, updated_at: int) -> BookModel:
         return BookModel(
-            entity=entity,
+            entity=Book.recovery(
+                id_book=id_book,
+                name=name, 
+                author=author, 
+                isbn=isbn
+            ),
             created_at=timestamp_to_date(created_at),
             updated_at=timestamp_to_date(updated_at)
         )

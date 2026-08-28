@@ -17,13 +17,11 @@ class BookLoanRepositoryAdapter(BookLoanRepository):
     @staticmethod
     def row_to_model(row: Any) -> LoanModel:
         return LoanModel.recovery(
-            entity=BookLoan.recovery(
-                id_loan=row["id_loan"],
-                id_book=row["id_book"],
-                id_student=row["id_student"],
-                checked_in=row["checked_in"],
-                checked_out=row["checked_out"]
-            ),
+            id_loan=row["id_loan"],
+            id_book=row["id_book"],
+            id_student=row["id_student"],
+            checked_in=row["checked_in"],
+            checked_out=row["checked_out"],
             created_at=row["created_at"],
             updated_at=row["updated_at"]
         )
