@@ -12,10 +12,12 @@ class Student(User):
         self.matriculation = matriculation
 
     @property
-    def id_student(self): return self._id_user
+    def id_student(self): 
+        return self._id_user
 
     @property
-    def matriculation(self): return self._matriculation
+    def matriculation(self): 
+        return self._matriculation
 
     @matriculation.setter
     def matriculation(self, matriculation: str):

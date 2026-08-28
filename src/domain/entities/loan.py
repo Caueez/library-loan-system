@@ -16,19 +16,24 @@ class BookLoan:
         self._checked_out = checked_out
 
     @property
-    def id_loan(self): return self._id_loan
+    def id_loan(self): 
+        return self._id_loan
 
     @property
-    def id_book(self): return self._id_book
+    def id_book(self): 
+        return self._id_book
 
     @property
-    def id_student(self): return self._id_student
+    def id_student(self): 
+        return self._id_student
 
     @property
-    def checked_in(self): return self._checked_in
+    def checked_in(self): 
+        return self._checked_in
 
     @property
-    def checked_out(self): return self._checked_out
+    def checked_out(self): 
+        return self._checked_out
 
     @staticmethod
     def create(id_book: str, id_student: str, checked_in: datetime) -> BookLoan:
