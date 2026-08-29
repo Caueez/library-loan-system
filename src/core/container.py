@@ -1,10 +1,9 @@
 
 
+from infrastructure.persistence.sqlite.queries import get_queries
+from src.core.settings import Settings
 
-
-from typing import Any
-
-from infrastructure.persistence.interface import DBInterface
+from src.infrastructure.persistence.interface import DBInterface
 from src.infrastructure.persistence.sqlite.implementation import SqliteDB
 
 from src.application.ports import (
@@ -26,9 +25,9 @@ class Container:
     _book_loan_repository: BookLoanRepository
     _student_repository: StudentRepository
 
-    def __init__(self, settings: dict[str, Any]):
-        self.setup()
+    def __init__(self, settings: Settings) -> None:
         self.settings = settings
+        self.setup()
 
     @property
     def db(self) -> DBInterface:
@@ -49,24 +48,20 @@ class Container:
 
     def setup(self):
         self._instance_database()
-        self._get_queries()
         self._instance_repo_adapters()
 
     def _instance_database(self) -> None:
-        choice = self.settings["database"]["type"]
+        database = self.settings.database
 
-        match choice:
+        match database.type:
             case "sqlite":
-                self._db = SqliteDB(self.settings[choice]["uri"])
+                self._db = SqliteDB(database.uri)
+                self._queries = get_queries(database.type)
+
             case _:
-                raise Exception("Banco de dados não suportado")
-
-    def _get_queries(self) -> None:
-        choice = self.settings["database"]["type"]
-
-        self._queries = self.settings[choice]["queries"]
+                raise ValueError("Banco de dados não suportado")
 
     def _instance_repo_adapters(self) -> None:
-        self._book_repository = BookRepositoryAdapter(self._db, self._queries)
-        self._book_loan_repository = BookLoanRepositoryAdapter(self._db, self._queries)
-        self._student_repository = StudentRepositoryAdapter(self._db, self._queries)
+        self._book_repository = BookRepositoryAdapter(self._db, self._queries["book"])
+        self._book_loan_repository = BookLoanRepositoryAdapter(self._db, self._queries["loan"])
+        self._student_repository = StudentRepositoryAdapter(self._db, self._queries["student"])
