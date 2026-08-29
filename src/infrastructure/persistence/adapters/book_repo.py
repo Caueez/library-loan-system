@@ -6,6 +6,7 @@ from application.ports.book_repo import BookRepository
 
 from domain.entities.book import Book
 
+from domain.values.date import date_to_timestamp
 from infrastructure.persistence.models.book import BookModel
 from infrastructure.persistence.interface import DBInterface
 
@@ -16,14 +17,14 @@ class BookRepositoryAdapter(BookRepository):
         self._queries = queries
 
     @staticmethod
-    def row_to_model(row: Any) -> BookModel:
+    def data_to_model(data: Any) -> BookModel:
         return BookModel.recovery(
-            id_book=row["id_book"],
-            name=row["name"],
-            author=row["author"],
-            isbn=row["isbn"],
-            created_at=row["created_at"],
-            updated_at=row["updated_at"]
+            id_book=data["id_book"],
+            name=data["name"],
+            author=data["author"],
+            isbn=data["isbn"],
+            created_at=data["created_at"],
+            updated_at=data["updated_at"]
         )
 
     @staticmethod
@@ -69,12 +70,12 @@ class BookRepositoryAdapter(BookRepository):
 # GET METHODS -------------------------------
 
     def get_by_id(self, entity_id: str) -> Optional[Book]:
-        row = self._db.fetchone(self._queries["get_book_by_id"], (entity_id,))
+        data = self._db.fetchone(self._queries["get_book_by_id"], (entity_id,))
 
-        if not row:
+        if not data:
             return None
 
-        model = self.row_to_model(row)
+        model = self.data_to_model(data)
 
         return model.entity
 
@@ -85,7 +86,7 @@ class BookRepositoryAdapter(BookRepository):
         if not data:
             return []
 
-        models = [self.row_to_model(row) for row in data]
+        models = [self.data_to_model(row) for row in data]
 
         return [model.entity for model in models]
 
@@ -95,7 +96,7 @@ class BookRepositoryAdapter(BookRepository):
         if not data:
             return []
 
-        models = [self.row_to_model(row) for row in data]
+        models = [self.data_to_model(row) for row in data]
 
         return [model.entity for model in models]
     
@@ -105,30 +106,30 @@ class BookRepositoryAdapter(BookRepository):
         if not data:
             return []
 
-        models = [self.row_to_model(row) for row in data]
+        models = [self.data_to_model(row) for row in data]
 
         return [model.entity for model in models]
 
 
     def get_by_created_at(self, created_at: datetime) -> list[Book]:
-        created_at_timestamp = int(created_at.timestamp())
+        created_at_timestamp = date_to_timestamp(created_at)
         data = self._db.fetchall(self._queries["get_book_by_created_at"], (created_at_timestamp,))
 
         if not data:
             return []
 
-        models = [self.row_to_model(row) for row in data]
+        models = [self.data_to_model(row) for row in data]
 
         return [model.entity for model in models]
 
     def get_by_updated_at(self, updated_at: datetime) -> list[Book]:
-        updated_at_timestamp = int(updated_at.timestamp())
+        updated_at_timestamp = date_to_timestamp(updated_at)
 
         data = self._db.fetchall(self._queries["get_book_by_updated_at"], (updated_at_timestamp,))
 
         if not data:
             return []
 
-        models = [self.row_to_model(row) for row in data]
+        models = [self.data_to_model(row) for row in data]
 
         return [model.entity for model in models]

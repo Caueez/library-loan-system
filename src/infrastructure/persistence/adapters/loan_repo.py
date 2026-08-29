@@ -5,6 +5,7 @@ from application.ports.loan_repo import BookLoanRepository
 
 from domain.entities.loan import BookLoan
 
+from domain.values.date import date_to_timestamp
 from infrastructure.persistence.interface import DBInterface
 from infrastructure.persistence.models.loan import LoanModel
 
@@ -15,15 +16,15 @@ class BookLoanRepositoryAdapter(BookLoanRepository):
         self._queries = queries
 
     @staticmethod
-    def row_to_model(row: Any) -> LoanModel:
+    def data_to_model(data: Any) -> LoanModel:
         return LoanModel.recovery(
-            id_loan=row["id_loan"],
-            id_book=row["id_book"],
-            id_student=row["id_student"],
-            checked_in=row["checked_in"],
-            checked_out=row["checked_out"],
-            created_at=row["created_at"],
-            updated_at=row["updated_at"]
+            id_loan=data["id_loan"],
+            id_book=data["id_book"],
+            id_student=data["id_student"],
+            checked_in=data["checked_in"],
+            checked_out=data["checked_out"],
+            created_at=data["created_at"],
+            updated_at=data["updated_at"]
         )
 
     @staticmethod
@@ -77,7 +78,7 @@ class BookLoanRepositoryAdapter(BookLoanRepository):
         if not data:
             return None
 
-        model = self.row_to_model(data)
+        model = self.data_to_model(data)
 
         return model.entity
 
@@ -87,7 +88,7 @@ class BookLoanRepositoryAdapter(BookLoanRepository):
         if not data:
             return []
 
-        models = [self.row_to_model(row) for row in data]
+        models = [self.data_to_model(row) for row in data]
                 
         return [model.entity for model in models]
 
@@ -97,63 +98,63 @@ class BookLoanRepositoryAdapter(BookLoanRepository):
         if not data:
             return []
 
-        models = [self.row_to_model(row) for row in data]
+        models = [self.data_to_model(row) for row in data]
                         
         return [model.entity for model in models]
 
     def get_by_checked_in(self, checked_in: datetime) -> list[BookLoan]:
-        checked_in_timestamp = int(checked_in.timestamp())
+        checked_in_timestamp = date_to_timestamp(checked_in)
         data = self._db.fetchall(self._queries["get_loan_by_checked_in"], (checked_in_timestamp,))
 
         if not data:
             return []
 
-        models = [self.row_to_model(row) for row in data]
+        models = [self.data_to_model(row) for row in data]
                         
         return [model.entity for model in models]
 
     def get_by_checked_out(self, checked_out: datetime) -> list[BookLoan]:
-        checked_out_timestamp = int(checked_out.timestamp())
+        checked_out_timestamp = date_to_timestamp(checked_out)
         data = self._db.fetchall(self._queries["get_loan_by_checked_out"], (checked_out_timestamp,))
 
         if not data:
             return []
 
-        models = [self.row_to_model(row) for row in data]
+        models = [self.data_to_model(row) for row in data]
                         
         return [model.entity for model in models]
 
     def get_checked_out_range(self, start_date: datetime, end_date: datetime) -> list[BookLoan]:
         data = self._db.fetchall(
             self._queries["get_loan_by_checked_out_range"],
-            (int(start_date.timestamp()), int(end_date.timestamp())),
+            (date_to_timestamp(start_date), date_to_timestamp(end_date)),
         )
 
         if not data:
             return []
 
-        models = [self.row_to_model(row) for row in data]
+        models = [self.data_to_model(row) for row in data]
                         
         return [model.entity for model in models]
 
     def get_by_created_at(self, created_at: datetime) -> list[BookLoan]:
-        created_at_timestamp = int(created_at.timestamp())
+        created_at_timestamp = date_to_timestamp(created_at)
         data = self._db.fetchall(self._queries["get_loan_by_created_at"], (created_at_timestamp,))
 
         if not data:
             return []
 
-        models = [self.row_to_model(row) for row in data]
+        models = [self.data_to_model(row) for row in data]
                         
         return [model.entity for model in models]
 
     def get_by_updated_at(self, updated_at: datetime) -> list[BookLoan]:
-        updated_at_timestamp = int(updated_at.timestamp())
+        updated_at_timestamp = date_to_timestamp(updated_at)
         data = self._db.fetchall(self._queries["get_loan_by_updated_at"], (updated_at_timestamp,))
 
         if not data:
             return []
 
-        models = [self.row_to_model(row) for row in data]
+        models = [self.data_to_model(row) for row in data]
                         
         return [model.entity for model in models]

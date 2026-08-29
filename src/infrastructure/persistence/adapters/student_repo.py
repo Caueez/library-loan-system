@@ -6,6 +6,7 @@ from application.ports.student_repo import StudentRepository
 
 from domain.entities.student import Student
 
+from domain.values.date import date_to_timestamp
 from infrastructure.persistence.models.student import StudentModel
 from infrastructure.persistence.interface import DBInterface
 
@@ -16,14 +17,14 @@ class StudentRepositoryAdapter(StudentRepository):
         self._queries = queries
 
     @staticmethod
-    def row_to_model(row: Any) -> StudentModel:
+    def data_to_model(data: Any) -> StudentModel:
         return StudentModel.recovery(
-            id_student=row["id_student"],
-            name=row["name"],
-            cpf=row["cpf"],
-            matriculation=row["matriculation"],
-            created_at=row["created_at"],
-            updated_at=row["updated_at"]
+            id_student=data["id_student"],
+            name=data["name"],
+            cpf=data["cpf"],
+            matriculation=data["matriculation"],
+            created_at=data["created_at"],
+            updated_at=data["updated_at"]
         )
 
     @staticmethod
@@ -70,31 +71,31 @@ class StudentRepositoryAdapter(StudentRepository):
         if not data:
             return None
 
-        model = self.row_to_model(data)
+        model = self.data_to_model(data)
 
         return model.entity
 
     def get_by_created_at(self, created_at: datetime) -> list[Student]:
-        created_at_timestamp = int(created_at.timestamp())
+        created_at_timestamp = date_to_timestamp(created_at)
 
         data = self._db.fetchall(self._queries["get_student_by_created_at"], (created_at_timestamp,))
 
         if not data:
             return []
 
-        models = [self.row_to_model(row) for row in data]
+        models = [self.data_to_model(row) for row in data]
 
         return [model.entity for model in models]
 
     def get_by_updated_at(self, updated_at: datetime) -> list[Student]:
-        updated_at_timestamp = int(updated_at.timestamp())
+        updated_at_timestamp = date_to_timestamp(updated_at)
 
         data = self._db.fetchall(self._queries["get_student_by_updated_at"], (updated_at_timestamp,))
 
         if not data:
             return []
 
-        models = [self.row_to_model(row) for row in data]
+        models = [self.data_to_model(row) for row in data]
         
         return [model.entity for model in models]
 
@@ -104,7 +105,7 @@ class StudentRepositoryAdapter(StudentRepository):
         if not data:
             return []
 
-        models = [self.row_to_model(row) for row in data]
+        models = [self.data_to_model(row) for row in data]
                        
         return [model.entity for model in models]
 
@@ -114,7 +115,7 @@ class StudentRepositoryAdapter(StudentRepository):
         if not data:
             return None
 
-        model = self.row_to_model(data)
+        model = self.data_to_model(data)
 
         return model.entity
 
@@ -124,6 +125,6 @@ class StudentRepositoryAdapter(StudentRepository):
         if not data:
             return None
 
-        model = self.row_to_model(data)
+        model = self.data_to_model(data)
         
         return model.entity
